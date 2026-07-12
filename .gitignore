@@ -1,0 +1,45 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+
+# Database
+*.db-journal
+*.db-wal
+
+# Logs
+logs/*.log
+logs/*.json
+logs/run_records/
+
+# OS
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# Docker
+docker/data/
+
+# Tests
+.pytest_cache/
+htmlcov/
+.coverage
