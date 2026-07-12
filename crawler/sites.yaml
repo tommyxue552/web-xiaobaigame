@@ -1,0 +1,15 @@
+﻿# crawler/sites.yaml
+# ==================
+# 采集站配置文件。
+#
+# 每个站点的配置项：
+#   name        标识（与 SPIDERS 注册表中的 key 对应）
+#   enabled     是否启用自动采集
+#   description 站点描述
+#
+# 调度器会遍历此列表，对 enabled=true 的站点依次执行采集。
+
+sites:
+  - name: gameshare
+    enabled: true
+    description: "3DM游戏下载站"

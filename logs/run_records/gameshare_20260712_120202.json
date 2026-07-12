@@ -1,0 +1,13 @@
+{
+  "site": "gameshare",
+  "start_time": "2026-07-12T12:02:02.007782",
+  "end_time": "2026-07-12T12:02:13.753890",
+  "crawled_count": 3,
+  "parsed_count": 60,
+  "uploaded_count": 50,
+  "failed_count": 0,
+  "duplicated_count": 10,
+  "status": "success",
+  "error_message": "",
+  "duration_seconds": 11.746108
+}

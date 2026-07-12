@@ -1,0 +1,62 @@
+2026-07-12 11:53:51 [INFO] main: ==================================================
+2026-07-12 11:53:51 [INFO] main: 启动采集器：gameshare
+2026-07-12 11:53:51 [INFO] main: ==================================================
+2026-07-12 11:53:51 [INFO] crawler: [gameshare] 开始采集，共 3 个 URL
+2026-07-12 11:53:51 [INFO] crawler: [gameshare] (1/3) 抓取 https://www.yxdown.com/pc/
+2026-07-12 11:53:54 [WARNING] crawler: [gameshare] 失败：None
+2026-07-12 11:53:56 [INFO] crawler: [gameshare] (2/3) 抓取 https://www.yxdown.com/pc/2.html
+2026-07-12 11:53:58 [WARNING] crawler: [gameshare] 失败：None
+2026-07-12 11:54:00 [INFO] crawler: [gameshare] (3/3) 抓取 https://www.yxdown.com/pc/3.html
+2026-07-12 11:54:02 [WARNING] crawler: [gameshare] 失败：None
+2026-07-12 11:54:02 [INFO] crawler: [gameshare] 采集完成：0/3 成功
+2026-07-12 11:54:02 [INFO] main: 采集完成：请求 3 次，解析 0 条
+2026-07-12 11:54:02 [INFO] main: --------------------------------------------------
+2026-07-12 11:54:02 [INFO] main: 开始上传到 http://localhost:8000
+2026-07-12 11:54:02 [WARNING] uploader: 没有可上传的游戏数据
+2026-07-12 11:56:09 [INFO] main: ==================================================
+2026-07-12 11:56:09 [INFO] main: 启动采集器：gameshare
+2026-07-12 11:56:09 [INFO] main: ==================================================
+2026-07-12 11:56:09 [INFO] crawler: [gameshare] 开始采集，共 3 个 URL
+2026-07-12 11:56:09 [INFO] crawler: [gameshare] (1/3) 抓取 https://dl.3dmgame.com
+2026-07-12 11:56:13 [INFO] crawler: [gameshare] 成功 200，耗时 3.89s
+2026-07-12 11:56:15 [INFO] crawler: [gameshare] (2/3) 抓取 https://dl.3dmgame.com/all_all_2_time/
+2026-07-12 11:56:17 [INFO] crawler: [gameshare] 成功 200，耗时 2.12s
+2026-07-12 11:56:19 [INFO] crawler: [gameshare] (3/3) 抓取 https://dl.3dmgame.com/all_all_3_time/
+2026-07-12 11:56:21 [INFO] crawler: [gameshare] 成功 200，耗时 2.15s
+2026-07-12 11:56:21 [INFO] crawler: [gameshare] 采集完成：3/3 成功
+2026-07-12 11:56:21 [INFO] main: 应用数量限制：60 → 10 条
+2026-07-12 11:56:21 [INFO] main: 采集完成：请求 3 次，解析 10 条
+2026-07-12 11:56:21 [INFO] main:   样例 1: 《Ever Seen A Cat? 3》免安装版
+2026-07-12 11:56:21 [INFO] main:   样例 2: 《Ever Seen A Cat? 2》免安装版
+2026-07-12 11:56:21 [INFO] main:   样例 3: 《Ever Seen A Cat?》免安装版
+2026-07-12 11:56:21 [INFO] main: --------------------------------------------------
+2026-07-12 11:56:21 [INFO] main: 开始上传到 http://localhost:8000
+2026-07-12 11:56:21 [INFO] uploader: 上传第 1/1 批，共 10 条
+2026-07-12 11:56:21 [INFO] uploader:   ↳ 成功：imported=10, skipped=0
+2026-07-12 11:56:21 [INFO] uploader: 上传完成：采集 3 → 解析 10 → 成功 10 / 失败 0 / 重复 0
+2026-07-12 11:56:26 [INFO] main: ==================================================
+2026-07-12 11:56:26 [INFO] main: 启动采集器：gameshare
+2026-07-12 11:56:26 [INFO] main: ==================================================
+2026-07-12 11:56:26 [INFO] crawler: [gameshare] 开始采集，共 3 个 URL
+2026-07-12 11:56:26 [INFO] crawler: [gameshare] (1/3) 抓取 https://dl.3dmgame.com
+2026-07-12 11:56:28 [INFO] crawler: [gameshare] 成功 200，耗时 2.31s
+2026-07-12 11:56:30 [INFO] crawler: [gameshare] (2/3) 抓取 https://dl.3dmgame.com/all_all_2_time/
+2026-07-12 11:56:32 [INFO] crawler: [gameshare] 成功 200，耗时 2.12s
+2026-07-12 11:56:35 [INFO] crawler: [gameshare] (3/3) 抓取 https://dl.3dmgame.com/all_all_3_time/
+2026-07-12 11:56:37 [INFO] crawler: [gameshare] 成功 200，耗时 2.14s
+2026-07-12 11:56:37 [INFO] crawler: [gameshare] 采集完成：3/3 成功
+2026-07-12 11:56:37 [INFO] main: 应用数量限制：60 → 10 条
+2026-07-12 11:56:37 [INFO] main: 采集完成：请求 3 次，解析 10 条
+2026-07-12 11:56:37 [INFO] main:   样例 1: 《Ever Seen A Cat? 3》免安装版
+2026-07-12 11:56:37 [INFO] main:   样例 2: 《Ever Seen A Cat? 2》免安装版
+2026-07-12 11:56:37 [INFO] main:   样例 3: 《Ever Seen A Cat?》免安装版
+2026-07-12 11:56:37 [INFO] main: --------------------------------------------------
+2026-07-12 11:56:37 [INFO] main: 开始上传到 http://localhost:8000
+2026-07-12 11:56:37 [INFO] uploader: 上传第 1/1 批，共 10 条
+2026-07-12 11:56:37 [INFO] uploader:   ↳ 成功：imported=0, skipped=10
+2026-07-12 11:56:37 [INFO] uploader: 上传完成：采集 3 → 解析 10 → 成功 0 / 失败 0 / 重复 10
+2026-07-12 12:02:22 [INFO] main: ==================================================
+2026-07-12 12:02:22 [INFO] main: 启动采集器：gameshare
+2026-07-12 12:02:22 [INFO] main: ==================================================
+2026-07-12 12:02:22 [INFO] crawler: [gameshare] 开始采集，共 3 个 URL
+2026-07-12 12:02:22 [INFO] crawler: [gameshare] (1/3) 抓取 https://dl.3dmgame.com
