@@ -120,16 +120,11 @@
         loadHomeGames();
     });
 
-    // 游戏卡片点击 -> 详情弹窗
+    // 游戏卡片点击 -> 跳转详情页
     document.addEventListener('click', function (e) {
         var card = e.target.closest('.game-card');
         if (!card) return;
-        var id = card.dataset.id;
-        fetchGameDetail(id).then(function (res) {
-            if (res.code === 0) showGameDetail(res.data);
-        }).catch(function (err) {
-            console.error('获取详情失败:', err);
-        });
+        window.open('/game/' + card.dataset.id, '_blank');
     });
 
     // 弹窗关闭

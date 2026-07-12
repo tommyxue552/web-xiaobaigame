@@ -137,11 +137,7 @@
     #game-grid.addEventListener('click', function (e) {
         var card = e.target.closest('.game-card');
         if (!card) return;
-        fetchGameDetail(card.dataset.id).then(function (res) {
-            if (res.code === 0) showGameDetail(res.data);
-        }).catch(function (err) {
-            console.error('获取详情失败:', err);
-        });
+        window.open('/game/' + card.dataset.id, '_blank');
     });
 
     .modal-overlay.addEventListener('click', function (e) {

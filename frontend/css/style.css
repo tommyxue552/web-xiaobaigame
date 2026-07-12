@@ -509,3 +509,283 @@ img { max-width: 100%; display: block; }
     .games-page-filters { flex-direction: column; align-items: stretch; }
     .games-page-filters input { width: 100%; }
 }
+
+
+/* ============================================================
+ * 游戏详情页样式
+ * ============================================================ */
+
+/* ---------- Breadcrumb ---------- */
+.breadcrumb {
+    background: #1a1a2e;
+    border-bottom: 1px solid #2a2a3e;
+    padding: 10px 0;
+}
+.breadcrumb .container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+}
+.breadcrumb a {
+    color: #888;
+    transition: color 0.2s;
+}
+.breadcrumb a:hover { color: #e94560; }
+.breadcrumb .breadcrumb-sep { color: #555; }
+.breadcrumb .breadcrumb-current { color: #ccc; }
+
+/* ---------- Detail Main ---------- */
+.game-detail-main { padding-top: 0; padding-bottom: 100px; }
+
+/* Loading */
+.detail-loading { padding: 40px 0; }
+.detail-loading .loading-cover {
+    width: 100%;
+    aspect-ratio: 16 / 7;
+    border-radius: 10px;
+    margin-bottom: 24px;
+}
+.detail-loading .loading-info .skeleton-text { margin-bottom: 12px; }
+
+/* ---------- Detail Hero ---------- */
+.detail-hero {
+    display: flex;
+    gap: 28px;
+    padding-top: 28px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid #2a2a3e;
+}
+.detail-cover-wrap {
+    flex-shrink: 0;
+    width: 340px;
+}
+.detail-cover {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #252540;
+}
+.detail-hero-body {
+    flex: 1;
+    min-width: 0;
+}
+.detail-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 14px;
+    line-height: 1.3;
+}
+.detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 18px;
+}
+.detail-tags span {
+    font-size: 0.75rem;
+    background: rgba(233, 69, 96, 0.15);
+    color: #e94560;
+    padding: 4px 12px;
+    border-radius: 4px;
+}
+
+/* Meta grid */
+.detail-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 32px;
+}
+.meta-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 7px 0;
+    border-bottom: 1px solid #252540;
+    font-size: 0.86rem;
+}
+.meta-label { color: #666; flex-shrink: 0; }
+.meta-value { color: #ccc; text-align: right; }
+
+/* ---------- Detail Sections ---------- */
+.detail-section {
+    padding-top: 32px;
+}
+.detail-section-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 16px;
+    padding-left: 12px;
+    border-left: 3px solid #e94560;
+}
+.detail-desc {
+    font-size: 0.92rem;
+    color: #aaa;
+    line-height: 1.9;
+    white-space: pre-wrap;
+}
+
+/* ---------- Screenshots Gallery ---------- */
+.screenshots-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+}
+.screenshot-thumb {
+    border-radius: 6px;
+    overflow: hidden;
+    border: 2px solid #2a2a3e;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+}
+.screenshot-thumb:hover {
+    border-color: #e94560;
+    transform: scale(1.02);
+}
+.screenshot-thumb img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    display: block;
+    background: #252540;
+}
+
+/* ---------- Screenshot Lightbox ---------- */
+.screenshot-lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+}
+.screenshot-lightbox.active { display: flex; }
+.screenshot-lightbox .lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #fff;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    transition: background 0.2s;
+}
+.screenshot-lightbox .lightbox-close:hover { background: rgba(255,255,255,0.2); }
+#lightbox-img {
+    max-width: 90vw;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 4px;
+}
+.lightbox-prev, .lightbox-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.08);
+    border: none;
+    font-size: 2.5rem;
+    cursor: pointer;
+    color: #fff;
+    width: 50px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+.lightbox-prev:hover, .lightbox-next:hover { background: rgba(255,255,255,0.18); }
+.lightbox-prev { left: 20px; }
+.lightbox-next { right: 20px; }
+
+/* ---------- Download Bar (Fixed Bottom) ---------- */
+.download-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #1a1a2e;
+    border-top: 1px solid #2a2a3e;
+    z-index: 150;
+    padding: 12px 0;
+}
+.download-bar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+.download-bar-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.download-bar-title {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #e0e0e0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.download-bar-size {
+    font-size: 0.78rem;
+    color: #777;
+    margin-top: 2px;
+}
+.download-bar-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 28px;
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+/* ============================================================
+ * 下载页样式（/download/{id} PC 端）
+ * 内联在 games.py 的 _render_download_page 中，此处预留覆盖
+ * ============================================================ */
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+    .detail-hero {
+        flex-direction: column;
+        gap: 18px;
+    }
+    .detail-cover-wrap {
+        width: 100%;
+    }
+    .detail-meta-grid {
+        grid-template-columns: 1fr;
+    }
+    .detail-title {
+        font-size: 1.3rem;
+    }
+    .screenshots-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    .lightbox-prev { left: 8px; font-size: 2rem; width: 40px; }
+    .lightbox-next { right: 8px; font-size: 2rem; width: 40px; }
+    .download-bar-title { font-size: 0.85rem; }
+    .download-bar-btn { padding: 10px 20px; font-size: 0.88rem; }
+}
+
+@media (max-width: 480px) {
+    .detail-title { font-size: 1.15rem; }
+    .detail-desc { font-size: 0.85rem; }
+    .meta-item { font-size: 0.8rem; }
+    .game-detail-main { padding-bottom: 90px; }
+}
