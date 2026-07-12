@@ -1,4 +1,4 @@
-"""
+﻿"""
 游戏公开 API
 -----------
 提供游戏列表查询、详情获取、分类列表、二维码生成、下载跳转。
@@ -11,6 +11,7 @@ from fastapi.responses import RedirectResponse, StreamingResponse, HTMLResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, update
 from ..core.database import get_db
+from ..core.config import settings
 from ..models.game import Game
 from ..models.category import Category
 from ..models.download_resource import DownloadResource
@@ -21,8 +22,9 @@ router = APIRouter(tags=['Games'])
 
 MOBILE_UA_REGEX = r'Android|iPhone|iPad|iPod|webOS|BlackBerry|Windows Phone'
 
-SITE_NAME = '小白游戏资源站'
-SITE_URL = 'http://localhost:8000'
+SITE_NAME = settings.APP_NAME
+def _site_url():
+    return settings.SITE_URL.rstrip('/')
 
 
 
@@ -69,7 +71,7 @@ def _render_game_detail_html(game, meta, game_dict):
     desc = html_esc(game_dict.get("description", "") or "")
     tags = game_dict.get("tags", []) or []
     imgs = game_dict.get("images", []) or []
-    canon = SITE_URL + "/game/" + slug
+    canon = _site_url() + "/game/" + slug
     gjson = json.dumps(game_dict, ensure_ascii=False, default=str)
     gt = game_dict["title"]
     gte = html_esc(gt)
@@ -125,20 +127,20 @@ def _render_game_detail_html(game, meta, game_dict):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>""" + t + """</title>
-    <meta name="description" content="""" + d + """">
-    <meta name="keywords" content="""" + kw + """">
-    <meta property="og:title" content="""" + t + """">
-    <meta property="og:description" content="""" + d + """">
+    <meta name="description" content=\"""" + d + """">
+    <meta name="keywords" content=\"""" + kw + """">
+    <meta property="og:title" content=\"""" + t + """">
+    <meta property="og:description" content=\"""" + d + """">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="""" + canon + """">
-    <meta property="og:site_name" content="""" + SITE_NAME + """">
+    <meta property="og:url" content=\"""" + canon + """">
+    <meta property="og:site_name" content=\"""" + SITE_NAME + """">
     <meta property="og:locale" content="zh_CN">
     """ + og_img + """
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="""" + t + """">
-    <meta name="twitter:description" content="""" + d + """">
+    <meta name="twitter:title" content=\"""" + t + """">
+    <meta name="twitter:description" content=\"""" + d + """">
     """ + tw_img + """
-    <link rel="canonical" href="""" + canon + """">
+    <link rel="canonical" href=\"""" + canon + """">
     <script type="application/ld+json">""" + jld_s + """</script>
     <link rel="stylesheet" href="/frontend/css/style.css">
 </head>
@@ -528,21 +530,101 @@ async def game_page(
 
 @router.get('/sitemap.xml', summary='站点地图')
 async def sitemap(db: AsyncSession = Depends(get_db)):
-    """生成符合搜索引擎标准的 sitemap.xml"""
+    """生成符合搜索引擎标准的 sitemap.xml（支持分类URL和分页索引）"""
+    # 查询已发布的游戏
     result = await db.execute(
         select(Game).where(Game.publish_status == 'published').order_by(Game.updated_at.desc())
     )
     games = result.scalars().all()
+    
+    # 查询分类
+    cat_result = await db.execute(select(Category).order_by(Category.id))
+    categories = cat_result.scalars().all()
+    
+    # 计算总URL数：首页 + 游戏列表 + 分类页 + 各游戏详情
+    base_url_count = 2  # 首页 + 游戏列表页
+    cat_url_count = len(categories)
+    game_url_count = len(games)
+    total_urls = base_url_count + cat_url_count + game_url_count
+    
+    # Sitemap 协议限制：单文件最多 50000 条 URL
+    MAX_URLS_PER_SITEMAP = 50000
+    
+    if total_urls <= MAX_URLS_PER_SITEMAP:
+        # 小站点：直接返回完整 sitemap
+        urls = _build_sitemap_urls(games, categories)
+        xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + '\n'.join(urls) + '\n</urlset>'
+        return HTMLResponse(content=xml, media_type='application/xml')
+    
+    # 大站点：返回 sitemap index
+    total_pages = (total_urls + MAX_URLS_PER_SITEMAP - 1) // MAX_URLS_PER_SITEMAP
+    index_urls = []
+    for p in range(1, total_pages + 1):
+        index_urls.append(
+            '  <sitemap>\n    <loc>' + _site_url() + '/sitemap-' + str(p) + '.xml</loc>\n  </sitemap>'
+        )
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + '\n'.join(index_urls) + '\n</sitemapindex>'
+    return HTMLResponse(content=xml, media_type='application/xml')
+
+
+@router.get('/sitemap-{page}.xml', summary='站点地图分页')
+async def sitemap_page(
+    page: int,
+    db: AsyncSession = Depends(get_db),
+):
+    """分页站点地图，每页最多 50000 条 URL"""
+    MAX_URLS_PER_SITEMAP = 50000
+    
+    # 查询所有已发布游戏和分类
+    result = await db.execute(
+        select(Game).where(Game.publish_status == 'published').order_by(Game.updated_at.desc())
+    )
+    games = result.scalars().all()
+    
+    cat_result = await db.execute(select(Category).order_by(Category.id))
+    categories = cat_result.scalars().all()
+    
+    # 构建完整的URL列表
+    all_urls = _build_sitemap_urls(games, categories)
+    total_urls = len(all_urls)
+    total_pages = (total_urls + MAX_URLS_PER_SITEMAP - 1) // MAX_URLS_PER_SITEMAP
+    
+    if page < 1 or page > total_pages:
+        raise HTTPException(status_code=404, detail='Sitemap page not found')
+    
+    start = (page - 1) * MAX_URLS_PER_SITEMAP
+    end = min(start + MAX_URLS_PER_SITEMAP, total_urls)
+    page_urls = all_urls[start:end]
+    
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + '\n'.join(page_urls) + '\n</urlset>'
+    return HTMLResponse(content=xml, media_type='application/xml')
+
+
+def _build_sitemap_urls(games, categories) -> list:
+    """构建 sitemap URL 列表（包含首页、分类、游戏详情）"""
     urls = []
-    urls.append('  <url>\n    <loc>' + SITE_URL + '</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>')
-    urls.append('  <url>\n    <loc>' + SITE_URL + '/frontend/games.html</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.9</priority>\n  </url>')
+    base = _site_url()
+    
+    # 首页
+    urls.append('  <url>\n    <loc>' + base + '</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>')
+    
+    # 游戏列表页
+    urls.append('  <url>\n    <loc>' + base + '/frontend/games.html</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.9</priority>\n  </url>')
+    
+    # 分类页
+    for cat in categories:
+        urls.append(
+            '  <url>\n    <loc>' + base + '/frontend/games.html?category=' + (cat.slug or '') + '</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>'
+        )
+    
+    # 游戏详情页
     for g in games:
-        loc = SITE_URL + '/game/' + (g.slug or str(g.id))
+        loc = base + '/game/' + (g.slug or str(g.id))
         lm = str(g.updated_at)[:10] if g.updated_at else (str(g.created_at)[:10] if g.created_at else '')
         lm_line = '\n    <lastmod>' + lm + '</lastmod>' if lm else ''
         urls.append('  <url>\n    <loc>' + loc + '</loc>' + lm_line + '\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>')
-    xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + '\n'.join(urls) + '\n</urlset>'
-    return HTMLResponse(content=xml, media_type='application/xml')
+    
+    return urls
 
 
 @router.get('/robots.txt', summary='robots.txt')
@@ -556,7 +638,7 @@ Disallow: /api/crawler/
 Disallow: /api/transfer/
 Disallow: /api/ai/
 
-Sitemap: """ + SITE_URL + """/sitemap.xml
+Sitemap: """ + _site_url() + """/sitemap.xml
 """
     return HTMLResponse(content=txt, media_type='text/plain')
 

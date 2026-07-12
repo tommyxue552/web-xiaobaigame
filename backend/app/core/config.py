@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
 ??????
 -----------
@@ -41,6 +41,8 @@ class Settings(BaseSettings):
     # ????
     STORAGE_DIR: Path = PROJECT_ROOT / "storage"
 
+    # 站点 URL（用于 SEO 标签、sitemap、robots.txt）
+    SITE_URL: str = "http://localhost:8000"
     # CORS ??
     ALLOWED_ORIGINS: list[str] = ["*"]
 
