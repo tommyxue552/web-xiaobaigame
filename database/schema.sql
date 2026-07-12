@@ -1,4 +1,4 @@
-﻿-- ============================================================
+-- ============================================================
 -- 小白游戏资源站 - 数据库初始化脚本
 -- ============================================================
 -- 数据库：SQLite（可迁移至 MySQL/PostgreSQL）
@@ -48,6 +48,14 @@ CREATE TABLE IF NOT EXISTS games (
     transfer_status VARCHAR(50)      DEFAULT 'pending'     ,
     transfer_time   DATETIME         NULL                  ,
 
+    -- SEO 优化字段
+    seo_title       VARCHAR(255)     DEFAULT ''            , -- 自定义 SEO 标题
+    seo_description VARCHAR(500)     DEFAULT ''            , -- 自定义 SEO 描述
+    seo_keywords    VARCHAR(500)     DEFAULT ''            , -- 自定义 SEO 关键词
+
+    -- 访问统计
+    views           INTEGER          DEFAULT 0             , -- 游戏浏览次数
+
     publish_status  VARCHAR(20)      DEFAULT 'draft'       ,
 
     created_at      DATETIME         DEFAULT CURRENT_TIMESTAMP,
@@ -75,7 +83,7 @@ INSERT OR IGNORE INTO categories (id, name, slug) VALUES (3, '冒险游戏', 'ad
 INSERT OR IGNORE INTO categories (id, name, slug) VALUES (4, '模拟经营', 'simulation');
 INSERT OR IGNORE INTO categories (id, name, slug) VALUES (5, '策略游戏', 'strategy');
 INSERT OR IGNORE INTO categories (id, name, slug) VALUES (6, '射击游戏', 'shooter');
-INSERT OR IGNORE INTO categories (id, name, slug) VALUES (7, '休闲游戏', 'casual');
+INSERT OR IGNORE INTO categories (id, name, slug) VALUES (7, '休闲游戏', 'casual');
 
 -- -----------------------------------------------------------
 -- 管理员表
@@ -85,4 +93,4 @@ CREATE TABLE IF NOT EXISTS admin_users (
     username        VARCHAR(50)      NOT NULL UNIQUE       ,
     password_hash   VARCHAR(255)     NOT NULL              ,
     created_at      DATETIME         DEFAULT CURRENT_TIMESTAMP
-);
+);

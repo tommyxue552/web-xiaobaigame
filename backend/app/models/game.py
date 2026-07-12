@@ -1,4 +1,4 @@
-﻿"""
+"""
 游戏资源模型
 -----------
 games 表：存储从各渠道采集的游戏资源信息。
@@ -42,6 +42,12 @@ class Game(Base):
     crawler_source = Column(String(100), default='', comment='采集来源标识')
     crawler_url = Column(String(500), default='', comment='采集时的源页面 URL')
 
+    views = Column(Integer, default=0, comment='游戏浏览次数')
+
+    seo_title = Column(String(255), default='', comment='自定义 SEO 标题')
+    seo_description = Column(String(500), default='', comment='自定义 SEO 描述')
+    seo_keywords = Column(String(500), default='', comment='自定义 SEO 关键词')
+
     transfer_status = Column(String(50), default='pending', comment='中转状态')
     transfer_time = Column(DateTime, nullable=True, comment='资源中转完成时间')
 
@@ -64,4 +70,4 @@ class Game(Base):
     )
 
     def __repr__(self):
-        return f'<Game(id={self.id}, title={self.title!r})>'
+        return f'<Game(id={self.id}, title={self.title!r})>'

@@ -1,4 +1,4 @@
-﻿"""
+"""
 小白游戏资源站 - 主应用入口
 =========================
 FastAPI 应用的主入口，负责注册路由、中间件、生命周期事件。
@@ -74,13 +74,11 @@ if uploads_dir.exists():
 
 # ==================== 根路径 ====================
 
-@app.get("/", summary="API 根路径")
+@app.get("/", summary="首页")
 async def root():
-    """返回 API 基本信息"""
-    return {
-        "name": settings.APP_NAME,
-        "version": settings.APP_VERSION,
-        "docs": "/docs",
-        "admin": "/admin/index.html",
-        "frontend": "/frontend/index.html",
-    }
+    """返回前端首页 HTML"""
+    from fastapi.responses import FileResponse
+    index_path = settings.PROJECT_ROOT / "frontend" / "index.html"
+    if index_path.exists():
+        return FileResponse(str(index_path))
+    return {"name": settings.APP_NAME, "version": settings.APP_VERSION}
