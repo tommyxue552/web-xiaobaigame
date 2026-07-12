@@ -56,6 +56,8 @@ class Game(Base):
     created_at = Column(DateTime, server_default=func.now(), comment='创建时间')
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), comment='更新时间')
 
+    download_resources = relationship("DownloadResource", back_populates="game", lazy="selectin")
+
     category_rel = relationship('Category', backref='games', lazy='joined')
 
     __table_args__ = (

@@ -17,6 +17,7 @@ from .api.admin import router as admin_router
 from .api.crawler import router as crawler_router
 from .api.transfer import router as transfer_router
 from .api.ai import router as ai_router
+from .api.download_resources import router as download_resources_router
 
 
 @asynccontextmanager
@@ -53,7 +54,8 @@ app.include_router(games_router)       # 公开游戏接口
 app.include_router(admin_router)       # 后台管理接口
 app.include_router(crawler_router)     # 采集接口（预留）
 app.include_router(transfer_router)    # 资源中转接口（预留）
-app.include_router(ai_router)          # AI 接口（预留）
+app.include_router(ai_router)          # AI ??????
+app.include_router(download_resources_router)   # ???????? 接口（预留）
 
 # ==================== 静态文件服务 ====================
 # 前台页面
@@ -81,4 +83,5 @@ async def root():
     index_path = settings.PROJECT_ROOT / "frontend" / "index.html"
     if index_path.exists():
         return FileResponse(str(index_path))
-    return {"name": settings.APP_NAME, "version": settings.APP_VERSION}
+    return {"name": settings.APP_NAME, "version": settings.APP_VERSION}
+
