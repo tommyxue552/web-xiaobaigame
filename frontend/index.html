@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小白游戏资源站 - 海量游戏免费下载</title>
+    <meta name="description" content="小白游戏资源站，提供海量精品单机游戏免费下载">
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+<body>
+
+    <!-- ==================== 顶部导航 ==================== -->
+    <header class="site-header">
+        <a href="/" class="logo">小白<span>游戏</span></a>
+        <nav>
+            <a href="/">首页</a>
+            <a href="/admin/index.html">后台管理</a>
+        </nav>
+    </header>
+
+    <!-- ==================== Hero 横幅 ==================== -->
+    <section class="hero">
+        <h1>小白<span>游戏</span>资源站</h1>
+        <p>海量精品单机游戏，免费高速下载。找游戏，就上小白游戏资源站。</p>
+    </section>
+
+    <!-- ==================== 筛选栏 ==================== -->
+    <main class="container">
+        <div class="filters">
+            <select id="category-filter">
+                <option value="">全部分类</option>
+                <option value="动作">动作</option>
+                <option value="冒险">冒险</option>
+                <option value="角色扮演">角色扮演</option>
+                <option value="策略">策略</option>
+                <option value="模拟">模拟</option>
+                <option value="射击">射击</option>
+                <option value="体育">体育</option>
+                <option value="竞速">竞速</option>
+                <option value="休闲">休闲</option>
+            </select>
+            <input type="text" id="keyword-input" placeholder="搜索游戏名称...">
+        </div>
+
+        <!-- ==================== 游戏列表 ==================== -->
+        <div class="game-grid">
+            <!-- JS 动态渲染 -->
+        </div>
+
+        <!-- ==================== 分页 ==================== -->
+        <div class="pagination">
+            <!-- JS 动态渲染 -->
+        </div>
+    </main>
+
+    <!-- ==================== 游戏详情弹窗 ==================== -->
+    <div class="modal-overlay">
+        <div class="modal">
+            <button class="modal-close">&times;</button>
+            <img class="modal-cover" src="" alt="游戏封面">
+            <div class="modal-body">
+                <h2 class="modal-title"></h2>
+                <div class="modal-tags"></div>
+                <div class="modal-info"></div>
+                <p class="modal-desc"></p>
+                <div class="modal-actions"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 页脚 ==================== -->
+    <footer class="site-footer">
+        <p>&copy; 2026 小白游戏资源站. All rights reserved.</p>
+    </footer>
+
+    <script src="/frontend/js/main.js"></script>
+</body>
+</html>

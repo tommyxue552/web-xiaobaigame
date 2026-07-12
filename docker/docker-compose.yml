@@ -1,0 +1,28 @@
+﻿# ============================================================
+# docker-compose.yml - 小白游戏资源站
+# ============================================================
+# 使用方式:
+#   docker-compose up -d
+# 服务将运行在 http://localhost:8000
+
+version: "3.9"
+
+services:
+  web-xiaobaigame:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: xiaobaigame
+    ports:
+      - "8000:8000"
+    volumes:
+      # 持久化数据库
+      - ../database:/app/database
+      # 持久化上传文件
+      - ../uploads:/app/uploads
+      # 持久化中转存储
+      - ../storage:/app/storage
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:////app/database/xiaobaigame.db
+      - DEBUG=false
+    restart: unless-stopped

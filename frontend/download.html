@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>扫码下载 - 小白游戏资源站</title>
+    <style>
+        /* ============================================================
+         * 下载二维码页面 - 独立样式
+         * PC 用户点击下载后跳转到此页面，展示二维码供手机扫码下载。
+         * ============================================================ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                         "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .qr-container {
+            background: #fff;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+        .qr-title {
+            color: #1a1a2e;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .qr-subtitle {
+            color: #888;
+            font-size: 0.85rem;
+            margin-bottom: 24px;
+        }
+        /* 二维码占位区域 - 后续集成 qrcode.js 后动态生成 */
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            background: #f5f5f5;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #bbb;
+            font-size: 0.85rem;
+        }
+        .qr-info {
+            color: #1a1a2e;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .qr-info strong { color: #e94560; }
+        .qr-tip {
+            margin-top: 24px;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== 二维码容器 ==================== -->
+    <div class="qr-container">
+        <h1 class="qr-title">扫码下载</h1>
+        <p class="qr-subtitle" id="game-title">请使用手机扫描二维码下载</p>
+        <div class="qr-code" id="qr-code">
+            <!-- 后续集成 qrcode.js 在此生成二维码 -->
+            <span>二维码区域</span>
+        </div>
+        <p class="qr-info">
+            下载链接：<br>
+            <strong id="download-link">-</strong>
+        </p>
+    </div>
+    <p class="qr-tip">请使用手机浏览器扫描二维码，或直接在手机浏览器中打开下载链接。</p>
+
+    <script>
+    /**
+     * 下载二维码页面脚本
+     * 解析 URL 参数并展示对应信息。
+     * 后续集成 qrcode.js 即可动态生成二维码。
+     */
+    (function () {
+        const params = new URLSearchParams(window.location.search);
+        const url = params.get("url") || "";
+        const title = params.get("title") || "游戏";
+
+        document.getElementById("game-title").textContent = "请使用手机扫描二维码下载";
+        document.getElementById("download-link").textContent = url || "暂无链接";
+
+        // TODO: 后续集成 qrcode.js
+        // new QRCode(document.getElementById("qr-code"), {
+        //     text: url,
+        //     width: 200,
+        //     height: 200,
+        // });
+    })();
+    </script>
+
+</body>
+</html>
