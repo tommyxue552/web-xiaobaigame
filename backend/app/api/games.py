@@ -13,6 +13,8 @@ from sqlalchemy import select, func, update
 from ..core.database import get_db
 from ..models.game import Game
 from ..models.category import Category
+from ..models.download_resource import DownloadResource
+from ..models.download_provider import DownloadProvider
 import qrcode
 
 router = APIRouter(tags=['Games'])
@@ -195,7 +197,7 @@ def _render_game_detail_html(game, meta, game_dict):
                 <span class="download-bar-title" id="download-bar-title">""" + gte + """</span>
                 <span class="download-bar-size" id="download-bar-size">""" + sz + """</span>
             </div>
-            <button class="btn btn-primary download-bar-btn" id="download-bar-btn" onclick="handleDownloadInline()">
+            <button class="btn btn-primary download-bar-btn" id="download-bar-btn" onclick="handleDownload()">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                     <polyline points="7 10 12 15 17 10"/>
@@ -337,6 +339,7 @@ async def get_game(
         'original_url': game.original_url,
         'crawler_source': game.crawler_source,
         'transfer_status': game.transfer_status,
+        'download_resources': await _get_game_downloads(db, game.id),
         'views': game.views,
         'created_at': str(game.created_at),
         'updated_at': str(game.updated_at),
@@ -396,6 +399,7 @@ async def get_game_by_slug(
         'original_url': game.original_url,
         'crawler_source': game.crawler_source,
         'transfer_status': game.transfer_status,
+        'download_resources': await _get_game_downloads(db, game.id),
         'views': game.views,
         'created_at': str(game.created_at),
         'updated_at': str(game.updated_at),
@@ -504,6 +508,7 @@ async def game_page(
         'transfer_status': game.transfer_status or '', 'views': game.views,
         'seo_title': game.seo_title or '', 'seo_description': game.seo_description or '',
         'seo_keywords': game.seo_keywords or '',
+        'download_resources': await _get_game_downloads(db, game.id),
         'created_at': str(game.created_at) if game.created_at else '',
         'updated_at': str(game.updated_at) if game.updated_at else '',
     }
@@ -556,7 +561,7 @@ Sitemap: """ + SITE_URL + """/sitemap.xml
     return HTMLResponse(content=txt, media_type='text/plain')
 
 
-@router.get('/download/{game_id}', summary='游戏下载页')
+@router.get('/game/{game_id}/download-qr', summary='游戏下载页（旧版兼容）')
 async def download_page(
     game_id: int,
     request: Request,
@@ -706,3 +711,47 @@ def _render_download_page(game_id: int, title: str, download_url: str) -> str:
 </body>
 </html>'''
 
+async def _get_game_downloads(db: AsyncSession, game_id: int) -> list:
+    result = await db.execute(
+        select(DownloadResource)
+        .where(
+            DownloadResource.game_id == game_id,
+            DownloadResource.status.in_(["active", "pending"]),
+        )
+        .order_by(DownloadResource.display_order.asc(), DownloadResource.id.asc())
+    )
+    resources = result.scalars().all()
+    items = []
+    for r in resources:
+        provider_name = ""
+        provider_code = r.provider
+        if r.provider_rel:
+            provider_name = r.provider_rel.name
+            provider_code = r.provider_rel.code
+        items.append({
+            "id": r.id,
+            "provider_code": provider_code,
+            "provider_name": provider_name or provider_code,
+            "title": r.title or "",
+            "extract_code": r.extract_code or "",
+            "display_order": r.display_order,
+        })
+    return items
+
+
+@router.get("/api/game/{game_id}/download-resources", summary="Get game download resources")
+async def get_game_download_resources(
+    game_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Game).where(Game.id == game_id, Game.publish_status == "published")
+    )
+    if not result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Game not found")
+    items = await _get_game_downloads(db, game_id)
+    return {
+        "code": 0,
+        "message": "success",
+        "data": {"resources": items},
+    }

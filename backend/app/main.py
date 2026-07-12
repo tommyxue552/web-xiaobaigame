@@ -1,4 +1,4 @@
-"""
+﻿"""
 小白游戏资源站 - 主应用入口
 =========================
 FastAPI 应用的主入口，负责注册路由、中间件、生命周期事件。
@@ -19,6 +19,7 @@ from .api.transfer import router as transfer_router
 from .api.ai import router as ai_router
 from .api.download_resources import router as download_resources_router
 from .api.download_providers import router as download_providers_router
+from .api.download_controller import router as download_controller_router
 
 
 @asynccontextmanager
@@ -51,13 +52,14 @@ app.add_middleware(
 )
 
 # ==================== 注册路由 ====================
-app.include_router(games_router)       # 公开游戏接口
-app.include_router(admin_router)       # 后台管理接口
-app.include_router(crawler_router)     # 采集接口（预留）
-app.include_router(transfer_router)    # 资源中转接口（预留）
-app.include_router(ai_router)          # AI ??????
-app.include_router(download_resources_router)   #
-app.include_router(download_providers_router)   # 下载渠道管理接口 ???????? 接口（预留）
+app.include_router(games_router)          # 公开游戏接口
+app.include_router(admin_router)          # 后台管理接口
+app.include_router(crawler_router)        # 采集接口（预留）
+app.include_router(transfer_router)       # 资源中转接口（预留）
+app.include_router(ai_router)             # AI 助手接口（预留）
+app.include_router(download_resources_router)   # 下载资源管理接口
+app.include_router(download_providers_router)   # 下载渠道管理接口
+app.include_router(download_controller_router)  # 统一下载控制器（模块7.4）
 
 # ==================== 静态文件服务 ====================
 # 前台页面
@@ -76,7 +78,7 @@ if uploads_dir.exists():
     app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
 
 
-# ==================== 根路径 ====================
+# ==================== 根路由 ====================
 
 @app.get("/", summary="首页")
 async def root():
@@ -86,4 +88,3 @@ async def root():
     if index_path.exists():
         return FileResponse(str(index_path))
     return {"name": settings.APP_NAME, "version": settings.APP_VERSION}
-

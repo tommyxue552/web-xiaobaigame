@@ -211,6 +211,55 @@
         var sizeEl = $('#download-bar-size');
         if (titleEl) titleEl.textContent = g.title;
         if (sizeEl) sizeEl.textContent = g.size || '';
+        loadDownloadResources(g.id);
+    }
+
+    async function loadDownloadResources(gameId) {
+        try {
+            var res = await fetch('/api/game/' + gameId + '/download-resources');
+            var data = await res.json();
+            if (data.code === 0 && data.data && data.data.resources && data.data.resources.length > 0) {
+                renderProviderButtons(data.data.resources);
+            }
+        } catch (e) {
+            console.error('loadDownloadResources failed:', e);
+        }
+    }
+
+    function renderProviderButtons(resources) {
+        var btnsEl = $('#download-bar-btns');
+        var defaultBtn = $('#download-bar-btn');
+        if (!btnsEl) return;
+        btnsEl.innerHTML = '';
+        btnsEl.style.display = 'flex';
+        if (defaultBtn) defaultBtn.style.display = 'none';
+        resources.forEach(function (r) {
+            var btn = document.createElement('button');
+            btn.className = 'btn-download-provider';
+            btn.title = r.provider_name + (r.extract_code ? ' extract: ' + r.extract_code : '');
+            btn.onclick = function () { handleResourceDownload(r.id); };
+            var label = document.createElement('span');
+            label.className = 'provider-label';
+            label.textContent = r.provider_name;
+            btn.appendChild(label);
+            if (r.title) {
+                var resTitle = document.createElement('span');
+                resTitle.className = 'provider-res-title';
+                resTitle.textContent = r.title;
+                btn.appendChild(resTitle);
+            }
+            if (r.extract_code) {
+                var codeSpan = document.createElement('span');
+                codeSpan.className = 'provider-code';
+                codeSpan.textContent = r.extract_code;
+                btn.appendChild(codeSpan);
+            }
+            btnsEl.appendChild(btn);
+        });
+    }
+
+    function handleResourceDownload(resourceId) {
+        window.open('/download/' + resourceId, '_blank');
     }
 
     // ==================== 事件绑定 ====================
@@ -268,13 +317,16 @@
 
     function handleDownload() {
         var g = state.game;
+        var resources = (g.download_resources && g.download_resources.length > 0) ? g.download_resources : null;
+        if (resources) {
+            handleResourceDownload(resources[0].id);
+            return;
+        }
         if (!g || !g.download_url) {
             alert('该游戏暂无下载链接');
             return;
         }
-
         var isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry/i.test(navigator.userAgent);
-
         if (isMobile) {
             window.open(g.download_url, '_blank');
         } else {
