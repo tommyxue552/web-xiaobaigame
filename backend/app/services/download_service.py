@@ -8,6 +8,7 @@ import secrets
 from typing import Optional, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from ..models.download_token import DownloadToken
 from ..models.download_resource import DownloadResource
 from ..models.download_provider import DownloadProvider
@@ -22,6 +23,7 @@ async def get_or_create_token(
     
     如果该资源已有 Token 则直接返回，否则创建新 Token。
     Token 使用 secrets.token_urlsafe(32) 生成。
+    并发安全：捕获 IntegrityError 后回退到查询已有 Token。
     
     Returns:
         (token, created): Token 对象和是否为新创建
@@ -53,7 +55,24 @@ async def get_or_create_token(
         status="active",
     )
     db.add(token)
-    await db.flush()
+    try:
+        await db.flush()
+    except IntegrityError:
+        # 并发场景：另一个请求已创建同资源 Token，或 Token 字符串意外碰撞
+        # 回滚当前插入，重新查询已有 Token
+        await db.rollback()
+        result = await db.execute(
+            select(DownloadToken).where(
+                DownloadToken.resource_id == resource_id,
+                DownloadToken.status == "active",
+            )
+        )
+        existing = result.scalars().first()
+        if existing:
+            return existing, False
+        # Token 字符串碰撞（极低概率）：重新抛出，由调用方决定重试
+        raise
+
     await db.refresh(token)
     return token, True
 

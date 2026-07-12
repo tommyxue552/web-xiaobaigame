@@ -4,7 +4,7 @@
 download_tokens 表：每个下载资源对应一个唯一 Token。
 Token 永久有效，更换资源链接时无需重新生成二维码。
 """
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Index
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Index, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from ..core.database import Base
@@ -48,6 +48,7 @@ class DownloadToken(Base):
         Index("idx_dt_token", "token"),
         Index("idx_dt_resource", "resource_id"),
         Index("idx_dt_game", "game_id"),
+        UniqueConstraint("resource_id", "status", name="idx_dt_resource_status"),
     )
 
     def __repr__(self):
