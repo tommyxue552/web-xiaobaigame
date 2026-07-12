@@ -101,7 +101,9 @@ CREATE TABLE IF NOT EXISTS download_resources (
     origin_url      VARCHAR(1000)   DEFAULT ''                , -- 原始来源URL
     my_share_url    VARCHAR(1000)   DEFAULT ''                , -- 我的分享链接
     extract_code    VARCHAR(20)     DEFAULT ''                , -- 提取码
-    status          VARCHAR(20)     DEFAULT 'active'          , -- active/inactive/broken
+    remark          TEXT            DEFAULT ''                , -- 备注
+    display_order   INTEGER         DEFAULT 0                   , -- 显示排序
+    status          VARCHAR(20)     DEFAULT 'active'          , -- pending/active/disabled/invalid
     created_at      DATETIME        DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME        DEFAULT CURRENT_TIMESTAMP
 );

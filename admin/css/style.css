@@ -267,6 +267,50 @@ table tr:hover { background: #fafbff; }
 .badge-completed { background: #e6f7e6; color: #2e7d32; }
 .badge-failed { background: #fce4ec; color: #c62828; }
 
+.badge-active { background: #e6f7e6; color: #2e7d32; }
+.badge-disabled { background: #fff3e0; color: #e65100; }
+.badge-invalid { background: #fce4ec; color: #c62828; }
+/* provider tags */
+.provider-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+.provider-baidu { background: #e3f2fd; color: #1565c0; }
+.provider-quark { background: #e8f5e9; color: #2e7d32; }
+.provider-alipan { background: #fff3e0; color: #e65100; }
+.provider-115 { background: #fce4ec; color: #c62828; }
+/* game select dropdown */
+.game-select-container { position: relative; }
+.game-select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 0 0 6px 6px;
+    z-index: 10;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.game-select-dropdown.active { display: block; }
+.game-select-dropdown .game-option {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+.game-select-dropdown .game-option:hover { background: #f0f5ff; }
+.game-select-dropdown .game-option.selected { background: #e3f2fd; font-weight: 600; }
+
+
 /* ---------- Toolbar (search + filter) ---------- */
 .toolbar {
     display: flex;
