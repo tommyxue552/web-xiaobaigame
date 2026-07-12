@@ -76,3 +76,13 @@ INSERT OR IGNORE INTO categories (id, name, slug) VALUES (4, '模拟经营', 'si
 INSERT OR IGNORE INTO categories (id, name, slug) VALUES (5, '策略游戏', 'strategy');
 INSERT OR IGNORE INTO categories (id, name, slug) VALUES (6, '射击游戏', 'shooter');
 INSERT OR IGNORE INTO categories (id, name, slug) VALUES (7, '休闲游戏', 'casual');
+
+-- -----------------------------------------------------------
+-- 管理员表
+-- -----------------------------------------------------------
+CREATE TABLE IF NOT EXISTS admin_users (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    username        VARCHAR(50)      NOT NULL UNIQUE       ,
+    password_hash   VARCHAR(255)     NOT NULL              ,
+    created_at      DATETIME         DEFAULT CURRENT_TIMESTAMP
+);

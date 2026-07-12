@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员登录 - 小白游戏资源站</title>
+    <link rel="stylesheet" href="/admin/css/style.css">
+</head>
+<body class="login-page">
+
+    <div class="login-container">
+        <div class="login-header">
+            <div class="login-logo">小白<span>游戏</span></div>
+            <p class="login-subtitle">后台管理系统</p>
+        </div>
+
+        <form class="login-form" id="login-form">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" placeholder="请输入管理员用户名" autocomplete="username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" placeholder="请输入密码" autocomplete="current-password" required>
+            </div>
+            <div class="login-error" id="login-error" style="display:none;"></div>
+            <button type="submit" class="btn btn-primary login-btn" id="login-btn">登 录</button>
+        </form>
+    </div>
+
+    <script>
+    (function () {
+        "use strict";
+
+        const form = document.getElementById("login-form");
+        const errorEl = document.getElementById("login-error");
+        const btn = document.getElementById("login-btn");
+
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value;
+
+            if (!username || !password) {
+                showError("请输入用户名和密码");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = "登录中...";
+            errorEl.style.display = "none";
+
+            try {
+                const res = await fetch("/api/admin/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password }),
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.code === 0) {
+                    localStorage.setItem("admin_token", data.data.token);
+                    localStorage.setItem("admin_username", data.data.username);
+                    window.location.href = "/admin/index.html";
+                } else {
+                    showError(data.detail || data.message || "登录失败");
+                }
+            } catch (err) {
+                showError("网络错误，请检查后端服务是否启动");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "登 录";
+            }
+        });
+
+        function showError(msg) {
+            errorEl.textContent = msg;
+            errorEl.style.display = "block";
+        }
+
+        // 如果已经登录，直接跳转
+        if (localStorage.getItem("admin_token")) {
+            window.location.href = "/admin/index.html";
+        }
+    })();
+    </script>
+
+</body>
+</html>

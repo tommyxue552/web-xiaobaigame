@@ -1,10 +1,12 @@
-﻿"""
-后台管理 API
+# -*- coding: utf-8 -*-
+"""
+???? API
 -----------
-提供游戏资源的增删改查管理接口。
+?????????????????????????
+?????? login ???? JWT ???
 """
 
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from pydantic import BaseModel, Field
@@ -12,35 +14,43 @@ from typing import Optional
 from datetime import date
 
 from ..core.database import get_db
+from ..core.auth import verify_password, create_access_token, get_current_admin
 from ..models.game import Game
+from ..models.category import Category
+from ..models.admin_user import AdminUser
 
-router = APIRouter(prefix='/api/admin', tags=['Admin'])
+router = APIRouter(prefix="/api/admin", tags=["Admin"])
 
 
-# ==================== 请求/响应模型 ====================
+# ==================== ??/???? ====================
+
+class LoginRequest(BaseModel):
+    username: str = Field(..., min_length=1, max_length=50)
+    password: str = Field(..., min_length=1, max_length=100)
+
 
 class GameCreate(BaseModel):
-    title: str = Field(..., min_length=1, max_length=255, description='游戏标题')
-    slug: str = Field(..., min_length=1, max_length=255, description='URL 标识')
-    cover: str = Field('', max_length=500, description='封面图 URL')
-    images: list[str] = Field(default_factory=list, description='截图列表')
-    description: str = Field('', max_length=10000, description='游戏描述')
-    system: str = Field('', max_length=100, description='运行平台')
-    language: str = Field('', max_length=50, description='语言')
-    size: str = Field('', max_length=50, description='文件大小')
-    version: str = Field('', max_length=50, description='版本号')
-    publisher: str = Field('', max_length=100, description='发行商')
-    developer: str = Field('', max_length=100, description='开发商')
-    release_date: Optional[date] = Field(None, description='发布日期')
-    category_id: Optional[int] = Field(None, description='分类ID')
-    category: str = Field('', max_length=100, description='分类名称')
-    tags: list[str] = Field(default_factory=list, description='标签')
-    download_url: str = Field('', max_length=500, description='下载链接')
-    original_url: str = Field('', max_length=500, description='原始来源')
-    crawler_source: str = Field('', max_length=100, description='采集来源')
-    crawler_url: str = Field('', max_length=500, description='采集页面')
-    transfer_status: str = Field('pending', max_length=50, description='中转状态')
-    publish_status: str = Field('draft', max_length=20, description='发布状态')
+    title: str = Field(..., min_length=1, max_length=255)
+    slug: str = Field(..., min_length=1, max_length=255)
+    cover: str = Field("", max_length=500)
+    images: list[str] = Field(default_factory=list)
+    description: str = Field("", max_length=10000)
+    system: str = Field("", max_length=100)
+    language: str = Field("", max_length=50)
+    size: str = Field("", max_length=50)
+    version: str = Field("", max_length=50)
+    publisher: str = Field("", max_length=100)
+    developer: str = Field("", max_length=100)
+    release_date: Optional[date] = Field(None)
+    category_id: Optional[int] = Field(None)
+    category: str = Field("", max_length=100)
+    tags: list[str] = Field(default_factory=list)
+    download_url: str = Field("", max_length=500)
+    original_url: str = Field("", max_length=500)
+    crawler_source: str = Field("", max_length=100)
+    crawler_url: str = Field("", max_length=500)
+    transfer_status: str = Field("pending", max_length=50)
+    publish_status: str = Field("draft", max_length=20)
 
 
 class GameUpdate(BaseModel):
@@ -56,7 +66,7 @@ class GameUpdate(BaseModel):
     publisher: Optional[str] = Field(None, max_length=100)
     developer: Optional[str] = Field(None, max_length=100)
     release_date: Optional[date] = None
-    category_id: Optional[int] = Field(None, description='分类ID')
+    category_id: Optional[int] = Field(None)
     category: Optional[str] = Field(None, max_length=100)
     tags: Optional[list[str]] = None
     download_url: Optional[str] = Field(None, max_length=500)
@@ -67,118 +77,214 @@ class GameUpdate(BaseModel):
     publish_status: Optional[str] = Field(None, max_length=20)
 
 
-# ==================== API 端点 ====================
+class CategoryCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    slug: str = Field(..., min_length=1, max_length=100)
 
-@router.get('/games', summary='[管理] 获取游戏列表')
-async def admin_list_games(
-    page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
-    publish_status: str = Query('', description='按状态筛选：draft/published/hidden'),
-    db: AsyncSession = Depends(get_db),
-):
-    query = select(Game)
-    if publish_status:
-        query = query.where(Game.publish_status == publish_status)
 
-    count_query = select(func.count()).select_from(query.subquery())
-    total = (await db.execute(count_query)).scalar()
+class CategoryUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    slug: Optional[str] = Field(None, min_length=1, max_length=100)
 
-    offset = (page - 1) * page_size
-    query = query.order_by(Game.created_at.desc()).offset(offset).limit(page_size)
-    result = await db.execute(query)
-    games = result.scalars().all()
 
+# ==================== ???? ====================
+
+@router.post("/login", summary="?????")
+async def admin_login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
+    """????????? JWT ???"""
+    result = await db.execute(
+        select(AdminUser).where(AdminUser.username == body.username)
+    )
+    admin = result.scalar_one_or_none()
+    if not admin or not verify_password(body.password, admin.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="????????",
+        )
+    token = create_access_token(data={"sub": str(admin.id), "username": admin.username})
     return {
-        'code': 0,
-        'message': 'success',
-        'data': {
-            'items': [serialize_game(g) for g in games],
-            'total': total,
-            'page': page,
-            'page_size': page_size,
-        },
+        "code": 0,
+        "message": "????",
+        "data": {"token": token, "username": admin.username},
     }
 
 
-@router.get('/game/{game_id}', summary='[管理] 获取游戏详情')
-async def admin_get_game(game_id: int, db: AsyncSession = Depends(get_db)):
+@router.get("/me", summary="?????????")
+async def admin_me(admin: AdminUser = Depends(get_current_admin)):
+    """?? token ??????????????"""
+    return {
+        "code": 0,
+        "message": "success",
+        "data": {"id": admin.id, "username": admin.username},
+    }
+
+
+# ==================== ???????????====================
+
+@router.get("/games", summary="[??] ??????")
+async def admin_list_games(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    keyword: str = Query("", description="?????"),
+    publish_status: str = Query("", description="?????"),
+    category: str = Query("", description="?????"),
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    query = select(Game)
+    count_query_base = select(func.count()).select_from(Game)
+    if publish_status:
+        query = query.where(Game.publish_status == publish_status)
+        count_query_base = count_query_base.where(Game.publish_status == publish_status)
+    if keyword:
+        query = query.where(Game.title.contains(keyword))
+        count_query_base = count_query_base.where(Game.title.contains(keyword))
+    if category:
+        query = query.where(Game.category == category)
+        count_query_base = count_query_base.where(Game.category == category)
+    total = (await db.execute(count_query_base)).scalar() or 0
+    offset = (page - 1) * page_size
+    query = query.order_by(Game.updated_at.desc()).offset(offset).limit(page_size)
+    result = await db.execute(query)
+    games = result.scalars().all()
+    return {
+        "code": 0, "message": "success",
+        "data": {"items": [serialize_game(g) for g in games], "total": total, "page": page, "page_size": page_size},
+    }
+
+
+@router.get("/game/{game_id}", summary="[??] ??????")
+async def admin_get_game(game_id: int, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Game).where(Game.id == game_id))
     game = result.scalar_one_or_none()
     if not game:
-        raise HTTPException(status_code=404, detail='游戏不存在')
-    return {'code': 0, 'message': 'success', 'data': serialize_game(game)}
+        raise HTTPException(status_code=404, detail="?????")
+    return {"code": 0, "message": "success", "data": serialize_game(game)}
 
 
-@router.post('/game', summary='[管理] 创建游戏', status_code=201)
-async def admin_create_game(body: GameCreate, db: AsyncSession = Depends(get_db)):
+@router.post("/game", summary="[??] ????", status_code=201)
+async def admin_create_game(body: GameCreate, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     existing = await db.execute(select(Game).where(Game.slug == body.slug))
     if existing.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail='slug 已存在')
-
+        raise HTTPException(status_code=400, detail="slug ???")
     game = Game(**body.model_dump())
     db.add(game)
     await db.flush()
     await db.refresh(game)
-    return {'code': 0, 'message': '创建成功', 'data': serialize_game(game)}
+    return {"code": 0, "message": "????", "data": serialize_game(game)}
 
 
-@router.put('/game/{game_id}', summary='[管理] 更新游戏')
-async def admin_update_game(
-    game_id: int, body: GameUpdate, db: AsyncSession = Depends(get_db)
-):
+@router.put("/game/{game_id}", summary="[??] ????")
+async def admin_update_game(game_id: int, body: GameUpdate, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Game).where(Game.id == game_id))
     game = result.scalar_one_or_none()
     if not game:
-        raise HTTPException(status_code=404, detail='游戏不存在')
-
+        raise HTTPException(status_code=404, detail="?????")
     update_data = body.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(game, key, value)
-
     await db.flush()
     await db.refresh(game)
-    return {'code': 0, 'message': '更新成功', 'data': serialize_game(game)}
+    return {"code": 0, "message": "????", "data": serialize_game(game)}
 
 
-@router.delete('/game/{game_id}', summary='[管理] 删除游戏')
-async def admin_delete_game(game_id: int, db: AsyncSession = Depends(get_db)):
+@router.delete("/game/{game_id}", summary="[??] ????")
+async def admin_delete_game(game_id: int, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Game).where(Game.id == game_id))
     game = result.scalar_one_or_none()
     if not game:
-        raise HTTPException(status_code=404, detail='游戏不存在')
-
+        raise HTTPException(status_code=404, detail="?????")
     await db.delete(game)
     await db.flush()
-    return {'code': 0, 'message': '删除成功'}
+    return {"code": 0, "message": "????"}
 
 
-# ==================== 辅助函数 ====================
+# ==================== ???????????====================
+
+@router.get("/categories", summary="[??] ??????")
+async def admin_list_categories(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Category).order_by(Category.id))
+    categories = result.scalars().all()
+    items = []
+    for c in categories:
+        count_result = await db.execute(select(func.count()).select_from(Game).where(Game.category_id == c.id))
+        game_count = count_result.scalar() or 0
+        items.append({"id": c.id, "name": c.name, "slug": c.slug, "game_count": game_count})
+    return {"code": 0, "message": "success", "data": items}
+
+
+@router.post("/category", summary="[??] ????", status_code=201)
+async def admin_create_category(body: CategoryCreate, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    existing = await db.execute(select(Category).where((Category.slug == body.slug) | (Category.name == body.name)))
+    if existing.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="????? slug ???")
+    cat = Category(name=body.name, slug=body.slug)
+    db.add(cat)
+    await db.flush()
+    await db.refresh(cat)
+    return {"code": 0, "message": "????", "data": {"id": cat.id, "name": cat.name, "slug": cat.slug, "game_count": 0}}
+
+
+@router.put("/category/{cat_id}", summary="[??] ????")
+async def admin_update_category(cat_id: int, body: CategoryUpdate, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Category).where(Category.id == cat_id))
+    cat = result.scalar_one_or_none()
+    if not cat:
+        raise HTTPException(status_code=404, detail="?????")
+    update_data = body.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(cat, key, value)
+    await db.flush()
+    await db.refresh(cat)
+    return {"code": 0, "message": "????", "data": {"id": cat.id, "name": cat.name, "slug": cat.slug}}
+
+
+@router.delete("/category/{cat_id}", summary="[??] ????")
+async def admin_delete_category(cat_id: int, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Category).where(Category.id == cat_id))
+    cat = result.scalar_one_or_none()
+    if not cat:
+        raise HTTPException(status_code=404, detail="?????")
+    await db.delete(cat)
+    await db.flush()
+    return {"code": 0, "message": "????"}
+
+
+# ==================== ????? ====================
+
+@router.get("/stats", summary="[??] ?????")
+async def admin_stats(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    total = (await db.execute(select(func.count()).select_from(Game))).scalar() or 0
+    published = (await db.execute(select(func.count()).select_from(Game).where(Game.publish_status == "published"))).scalar() or 0
+    draft = (await db.execute(select(func.count()).select_from(Game).where(Game.publish_status == "draft"))).scalar() or 0
+    cat_count = (await db.execute(select(func.count()).select_from(Category))).scalar() or 0
+    recent_result = await db.execute(select(Game).order_by(Game.created_at.desc()).limit(5))
+    recent_games = recent_result.scalars().all()
+    return {
+        "code": 0, "message": "success",
+        "data": {
+            "total_games": total, "published_games": published, "draft_games": draft,
+            "category_count": cat_count,
+            "recent_games": [{"id": g.id, "title": g.title, "cover": g.cover, "category": g.category,
+                               "publish_status": g.publish_status, "created_at": str(g.created_at)} for g in recent_games],
+        },
+    }
+
+
+# ==================== ???? ====================
 
 def serialize_game(g: Game) -> dict:
     return {
-        'id': g.id,
-        'title': g.title,
-        'slug': g.slug,
-        'cover': g.cover,
-        'images': g.images,
-        'description': g.description,
-        'system': g.system,
-        'language': g.language,
-        'size': g.size,
-        'version': g.version,
-        'publisher': g.publisher,
-        'developer': g.developer,
-        'release_date': str(g.release_date) if g.release_date else None,
-        'category_id': g.category_id,
-        'category': g.category,
-        'tags': g.tags,
-        'download_url': g.download_url,
-        'original_url': g.original_url,
-        'crawler_source': g.crawler_source,
-        'crawler_url': g.crawler_url,
-        'transfer_status': g.transfer_status,
-        'transfer_time': str(g.transfer_time) if g.transfer_time else None,
-        'publish_status': g.publish_status,
-        'created_at': str(g.created_at),
-        'updated_at': str(g.updated_at),
+        "id": g.id, "title": g.title, "slug": g.slug,
+        "cover": g.cover, "images": g.images, "description": g.description,
+        "system": g.system, "language": g.language, "size": g.size,
+        "version": g.version, "publisher": g.publisher, "developer": g.developer,
+        "release_date": str(g.release_date) if g.release_date else None,
+        "category_id": g.category_id, "category": g.category, "tags": g.tags,
+        "download_url": g.download_url, "original_url": g.original_url,
+        "crawler_source": g.crawler_source, "crawler_url": g.crawler_url,
+        "transfer_status": g.transfer_status,
+        "transfer_time": str(g.transfer_time) if g.transfer_time else None,
+        "publish_status": g.publish_status,
+        "created_at": str(g.created_at), "updated_at": str(g.updated_at),
     }

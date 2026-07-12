@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
  * 小白游戏资源站 - 后台管理样式
  * ============================================================ */
 
@@ -10,11 +10,106 @@ body {
                  "Microsoft YaHei", sans-serif;
     color: #1a1a2e;
     background: #f0f2f5;
+}
+
+/* ==================== Login Page ==================== */
+
+body.login-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+
+.login-container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 420px;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 36px;
+}
+
+.login-logo {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    letter-spacing: 1px;
+}
+
+.login-logo span { color: #e94560; }
+
+.login-subtitle {
+    font-size: 0.85rem;
+    color: #888;
+    margin-top: 6px;
+}
+
+.login-form .form-group { margin-bottom: 20px; }
+
+.login-form .form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #444;
+}
+
+.login-form .form-group input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fafafa;
+}
+
+.login-form .form-group input:focus {
+    border-color: #0f3460;
+    background: #fff;
+}
+
+.login-error {
+    background: #fff0f0;
+    color: #c62828;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+    border: 1px solid #ffcdd2;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    background: #0f3460;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.login-btn:hover { background: #1a4a8a; }
+.login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ==================== Admin Layout ==================== */
+
+body.admin-body {
     display: flex;
     min-height: 100vh;
 }
 
-/* ---------- Sidebar ---------- */
 .sidebar {
     width: 220px;
     background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
@@ -66,9 +161,20 @@ body {
     letter-spacing: 1px;
     color: rgba(255,255,255,0.3);
 }
-.sidebar .nav-item.hidden-menu { display: none; }  /* 隐藏菜单 */
+.sidebar .nav-item.hidden-menu { display: none; }
+.sidebar .sidebar-footer {
+    padding: 12px 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.5);
+}
+.sidebar .sidebar-footer .logout-link {
+    color: #e94560;
+    cursor: pointer;
+    text-decoration: none;
+}
+.sidebar .sidebar-footer .logout-link:hover { text-decoration: underline; }
 
-/* ---------- Main Content ---------- */
 .main {
     flex: 1;
     margin-left: 220px;
@@ -86,6 +192,10 @@ body {
     z-index: 50;
 }
 .main-header h2 { font-size: 1.2rem; font-weight: 600; }
+.main-header .header-user {
+    font-size: 0.85rem;
+    color: #888;
+}
 .main-body { padding: 24px 28px; }
 
 /* ---------- Dashboard Stats ---------- */
@@ -153,7 +263,94 @@ table tr:hover { background: #fafbff; }
 .badge-draft { background: #fff3e0; color: #e65100; }
 .badge-hidden { background: #f5f5f5; color: #888; }
 .badge-pending { background: #e3f2fd; color: #1565c0; }
+.badge-transferring { background: #fff8e1; color: #f57f17; }
 .badge-completed { background: #e6f7e6; color: #2e7d32; }
+.badge-failed { background: #fce4ec; color: #c62828; }
+
+/* ---------- Toolbar (search + filter) ---------- */
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    flex-wrap: wrap;
+}
+.toolbar .search-input {
+    padding: 7px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    width: 220px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.toolbar .search-input:focus { border-color: #0f3460; }
+.toolbar select {
+    padding: 7px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    outline: none;
+    background: #fff;
+}
+.toolbar .toolbar-info {
+    margin-left: auto;
+    font-size: 0.8rem;
+    color: #888;
+}
+
+/* ---------- Pagination ---------- */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 16px 20px;
+    border-top: 1px solid #f0f0f0;
+}
+.pagination button {
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #555;
+    transition: all 0.2s;
+}
+.pagination button:hover:not(:disabled) { border-color: #0f3460; color: #0f3460; }
+.pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+.pagination button.active { background: #0f3460; color: #fff; border-color: #0f3460; }
+.pagination .page-info {
+    font-size: 0.8rem;
+    color: #888;
+    margin: 0 8px;
+}
+
+/* ---------- Recent list ---------- */
+.recent-list {
+    list-style: none;
+}
+.recent-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+.recent-list li:last-child { border-bottom: none; }
+.recent-list .recent-cover {
+    width: 48px;
+    height: 30px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #eee;
+    flex-shrink: 0;
+}
+.recent-list .recent-title { flex: 1; font-size: 0.9rem; }
+.recent-list .recent-category { font-size: 0.8rem; color: #888; }
+.recent-list .recent-time { font-size: 0.75rem; color: #aaa; }
 
 /* ---------- Buttons ---------- */
 .btn {
@@ -233,6 +430,42 @@ table tr:hover { background: #fafbff; }
     gap: 10px;
 }
 
+/* ---------- Confirm Dialog ---------- */
+.confirm-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 400;
+    justify-content: center;
+    align-items: center;
+}
+.confirm-overlay.active { display: flex; }
+.confirm-dialog {
+    background: #fff;
+    border-radius: 10px;
+    padding: 32px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+}
+.confirm-dialog .confirm-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    color: #e94560;
+}
+.confirm-dialog p {
+    font-size: 0.95rem;
+    color: #444;
+    margin-bottom: 24px;
+}
+.confirm-dialog .confirm-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
 /* ---------- Empty State ---------- */
 .empty-state {
     text-align: center;
@@ -260,7 +493,11 @@ table tr:hover { background: #fafbff; }
     .sidebar .nav-item { padding: 12px 14px; justify-content: center; }
     .sidebar .nav-item span:not(.nav-icon) { display: none; }
     .sidebar .nav-divider { display: none; }
+    .sidebar .sidebar-footer { display: none; }
     .main { margin-left: 60px; }
     .form-row { grid-template-columns: 1fr; }
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .toolbar { flex-direction: column; align-items: flex-start; }
+    .toolbar .search-input { width: 100%; }
+    .toolbar .toolbar-info { margin-left: 0; }
 }
