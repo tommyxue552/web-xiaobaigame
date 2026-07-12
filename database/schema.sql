@@ -73,6 +73,7 @@ CREATE INDEX IF NOT EXISTS idx_games_transfer_status  ON games(transfer_status);
 CREATE INDEX IF NOT EXISTS idx_games_publish_status   ON games(publish_status);
 CREATE INDEX IF NOT EXISTS idx_games_created_at       ON games(created_at);
 CREATE INDEX IF NOT EXISTS idx_games_title            ON games(title);
+CREATE INDEX IF NOT EXISTS idx_games_original_url   ON games(original_url);
 
 -- -----------------------------------------------------------
 -- 种子数据：分类
@@ -83,7 +84,8 @@ INSERT OR IGNORE INTO categories (id, name, slug) VALUES (3, '冒险游戏', 'ad
 INSERT OR IGNORE INTO categories (id, name, slug) VALUES (4, '模拟经营', 'simulation');
 INSERT OR IGNORE INTO categories (id, name, slug) VALUES (5, '策略游戏', 'strategy');
 INSERT OR IGNORE INTO categories (id, name, slug) VALUES (6, '射击游戏', 'shooter');
-INSERT OR IGNORE INTO categories (id, name, slug) VALUES (7, '休闲游戏', 'casual');
+INSERT OR IGNORE INTO categories (id, name, slug) VALUES (7, '休闲游戏', 'casual');
+
 
 -- -----------------------------------------------------------
 -- 管理员表
@@ -93,4 +95,5 @@ CREATE TABLE IF NOT EXISTS admin_users (
     username        VARCHAR(50)      NOT NULL UNIQUE       ,
     password_hash   VARCHAR(255)     NOT NULL              ,
     created_at      DATETIME         DEFAULT CURRENT_TIMESTAMP
-);
+);
+

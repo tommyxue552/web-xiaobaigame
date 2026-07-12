@@ -67,7 +67,9 @@ class Game(Base):
         Index('idx_games_publish_status', 'publish_status'),
         Index('idx_games_created_at', 'created_at'),
         Index('idx_games_title', 'title'),
+        Index('idx_games_original_url', 'original_url'),
     )
 
     def __repr__(self):
-        return f'<Game(id={self.id}, title={self.title!r})>'
+        return f'<Game(id={self.id}, title={self.title!r})>'
+

@@ -53,6 +53,9 @@ class Settings(BaseSettings):
     CRAWLER_ENABLED: bool = False
     CRAWLER_INTERVAL: int = 3600
 
+    # ??? API Key????????? Key ?????
+    COLLECTOR_KEY: str = "xiaobai-collector-default-key-change-in-production"
+
     # AI ????????
     AI_ENABLED: bool = False
     AI_API_KEY: str = ""
