@@ -1,78 +1,97 @@
 ﻿<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang='zh-CN'>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小白游戏资源站 - 海量游戏免费下载</title>
-    <meta name="description" content="小白游戏资源站，提供海量精品单机游戏免费下载">
-    <link rel="stylesheet" href="/frontend/css/style.css">
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>小白游戏资源站 - 海量精品游戏免费下载</title>
+    <meta name='description' content='小白游戏资源站，提供海量精品单机游戏免费下载'>
+    <link rel='stylesheet' href='/frontend/css/style.css'>
 </head>
 <body>
 
     <!-- ==================== 顶部导航 ==================== -->
-    <header class="site-header">
-        <a href="/" class="logo">小白<span>游戏</span></a>
-        <nav>
-            <a href="/">首页</a>
-            <a href="/admin/index.html">后台管理</a>
-        </nav>
+    <header class='site-header'>
+        <div class='header-inner'>
+            <a href='/' class='logo'>小白<span>游戏</span></a>
+            <nav class='main-nav'>
+                <a href='/' class='active'>首页</a>
+                <a href='/frontend/games.html'>游戏列表</a>
+                <a href='/admin/index.html'>后台管理</a>
+            </nav>
+            <button class='mobile-menu-btn' aria-label='菜单'>
+                <span></span><span></span><span></span>
+            </button>
+        </div>
     </header>
 
-    <!-- ==================== Hero 横幅 ==================== -->
-    <section class="hero">
-        <h1>小白<span>游戏</span>资源站</h1>
-        <p>海量精品单机游戏，免费高速下载。找游戏，就上小白游戏资源站。</p>
+    <!-- ==================== 搜索栏 ==================== -->
+    <section class='search-section'>
+        <div class='container'>
+            <div class='search-box'>
+                <svg class='search-icon' viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2'>
+                    <circle cx='11' cy='11' r='8'/><path d='m21 21-4.35-4.35'/>
+                </svg>
+                <input type='text' id='keyword-input' placeholder='搜索游戏名称...' autocomplete='off'>
+            </div>
+        </div>
     </section>
 
-    <!-- ==================== 筛选栏 ==================== -->
-    <main class="container">
-        <div class="filters">
-            <select id="category-filter">
-                <option value="">全部分类</option>
-                <option value="动作">动作</option>
-                <option value="冒险">冒险</option>
-                <option value="角色扮演">角色扮演</option>
-                <option value="策略">策略</option>
-                <option value="模拟">模拟</option>
-                <option value="射击">射击</option>
-                <option value="体育">体育</option>
-                <option value="竞速">竞速</option>
-                <option value="休闲">休闲</option>
-            </select>
-            <input type="text" id="keyword-input" placeholder="搜索游戏名称...">
+    <!-- ==================== 分类导航 ==================== -->
+    <section class='category-nav'>
+        <div class='container'>
+            <div class='category-tabs' id='category-tabs'>
+                <!-- JS 动态渲染 -->
+            </div>
         </div>
+    </section>
 
-        <!-- ==================== 游戏列表 ==================== -->
-        <div class="game-grid">
-            <!-- JS 动态渲染 -->
-        </div>
+    <!-- ==================== 主体内容 ==================== -->
+    <main class='container main-content'>
+        <!-- 最新游戏 -->
+        <section class='game-section'>
+            <div class='section-header'>
+                <h2 class='section-title'>最新游戏</h2>
+                <a href='/frontend/games.html' class='section-more'>查看全部 &rarr;</a>
+            </div>
+            <div class='game-grid' id='latest-grid'>
+                <!-- JS 动态渲染 -->
+            </div>
+        </section>
 
-        <!-- ==================== 分页 ==================== -->
-        <div class="pagination">
-            <!-- JS 动态渲染 -->
-        </div>
+        <!-- 热门游戏 -->
+        <section class='game-section'>
+            <div class='section-header'>
+                <h2 class='section-title'>热门推荐</h2>
+                <a href='/frontend/games.html' class='section-more'>查看全部 &rarr;</a>
+            </div>
+            <div class='game-grid' id='hot-grid'>
+                <!-- JS 动态渲染 -->
+            </div>
+        </section>
     </main>
 
     <!-- ==================== 游戏详情弹窗 ==================== -->
-    <div class="modal-overlay">
-        <div class="modal">
-            <button class="modal-close">&times;</button>
-            <img class="modal-cover" src="" alt="游戏封面">
-            <div class="modal-body">
-                <h2 class="modal-title"></h2>
-                <div class="modal-tags"></div>
-                <div class="modal-info"></div>
-                <p class="modal-desc"></p>
-                <div class="modal-actions"></div>
+    <div class='modal-overlay'>
+        <div class='modal'>
+            <button class='modal-close'>&times;</button>
+            <img class='modal-cover' src='' alt='游戏封面'>
+            <div class='modal-body'>
+                <h2 class='modal-title'></h2>
+                <div class='modal-tags'></div>
+                <div class='modal-info'></div>
+                <p class='modal-desc'></p>
+                <div class='modal-actions'></div>
             </div>
         </div>
     </div>
 
     <!-- ==================== 页脚 ==================== -->
-    <footer class="site-footer">
-        <p>&copy; 2026 小白游戏资源站. All rights reserved.</p>
+    <footer class='site-footer'>
+        <div class='container'>
+            <p>&copy; 2026 小白游戏资源站. All rights reserved.</p>
+        </div>
     </footer>
 
-    <script src="/frontend/js/main.js"></script>
+    <script src='/frontend/js/main.js'></script>
 </body>
 </html>

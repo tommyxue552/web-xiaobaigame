@@ -1,23 +1,25 @@
 ﻿/**
- * 小白游戏资源站 - 首页脚本
+ * 小白游戏资源站 - 游戏列表页脚本
  * ================================
- * 动态加载分类、最新游戏、热门游戏，支持搜索和详情弹窗。
+ * 分页浏览、分类筛选、搜索、详情弹窗。
  */
 (function () {
     'use strict';
 
-    const state = {
-        activeCategory: '',
+    var state = {
+        page: 1,
+        pageSize: 20,
+        total: 0,
+        category: '',
         keyword: '',
-        categories: [],
+        games: [],
     };
 
-    const $ = (sel) => document.querySelector(sel);
-    const  = (sel) => document.querySelectorAll(sel);
+    var $ = function (sel) { return document.querySelector(sel); };
 
     // ==================== API ====================
     async function api(url) {
-        const res = await fetch(url);
+        var res = await fetch(url);
         if (!res.ok) throw new Error('请求失败');
         return res.json();
     }
@@ -26,8 +28,13 @@
         return api('/api/categories');
     }
 
-    async function fetchGames(params) {
-        const qs = new URLSearchParams(params);
+    async function fetchGames() {
+        var qs = new URLSearchParams({
+            page: state.page,
+            page_size: state.pageSize,
+            category: state.category,
+            keyword: state.keyword,
+        });
         return api('/api/games?' + qs);
     }
 
@@ -37,23 +44,23 @@
 
     // ==================== 渲染 ====================
 
-    function renderCategoryTabs(categories) {
-        const container = #category-tabs;
-        let html = '<button class="category-tab active" data-category="">全部</button>';
+    function renderCategories(categories) {
+        var sel = #category-filter;
         categories.forEach(function (c) {
-            html += '<button class="category-tab" data-category="' + c.name + '">' + c.name + '</button>';
+            var opt = document.createElement('option');
+            opt.value = c.name;
+            opt.textContent = c.name;
+            sel.appendChild(opt);
         });
-        container.innerHTML = html;
     }
 
-    function renderGameCards(games, containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
+    function renderGameCards(games) {
+        var grid = #game-grid;
         if (!games || games.length === 0) {
-            container.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><p>暂无游戏数据</p></div>';
+            grid.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><p>暂无游戏数据</p></div>';
             return;
         }
-        container.innerHTML = games.map(function (g) {
+        grid.innerHTML = games.map(function (g) {
             var coverHtml = g.cover
                 ? '<img class="card-cover" src="' + g.cover + '" alt="' + esc(g.title) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';">'
                 : '';
@@ -73,31 +80,49 @@
         }).join('');
     }
 
+    function renderPagination() {
+        var container = #pagination;
+        var totalPages = Math.ceil(state.total / state.pageSize);
+        if (totalPages <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+        var html = '<button ' + (state.page <= 1 ? 'disabled' : '') + ' data-action="prev">上一页</button>';
+
+        // 页码按钮
+        var startPage = Math.max(1, state.page - 2);
+        var endPage = Math.min(totalPages, state.page + 2);
+        for (var i = startPage; i <= endPage; i++) {
+            html += '<span class="page-num' + (i === state.page ? ' active' : '') + '" data-page="' + i + '">' + i + '</span>';
+        }
+
+        html += '<button ' + (state.page >= totalPages ? 'disabled' : '') + ' data-action="next">下一页</button>';
+        html += '<span class="page-info">共 ' + state.total + ' 个游戏</span>';
+        container.innerHTML = html;
+    }
+
+    function updateResultCount() {
+        #result-count.textContent = '共 ' + state.total + ' 个游戏';
+    }
+
     function showGameDetail(game) {
         var modal = .modal-overlay;
-        var cover = .modal-cover;
-        var title = .modal-title;
-        var tags = .modal-tags;
-        var info = .modal-info;
-        var desc = .modal-desc;
-        var actions = .modal-actions;
-
-        cover.src = game.cover || '';
-        cover.onerror = function () { cover.style.display = 'none'; };
-        cover.style.display = 'block';
-        title.textContent = game.title;
-        tags.innerHTML = (game.tags || []).map(function (t) {
+        .modal-cover.src = game.cover || '';
+        .modal-cover.onerror = function () { this.style.display = 'none'; };
+        .modal-cover.style.display = 'block';
+        .modal-title.textContent = game.title;
+        .modal-tags.innerHTML = (game.tags || []).map(function (t) {
             return '<span>' + esc(t) + '</span>';
         }).join('');
-        info.innerHTML = ''
+        .modal-info.innerHTML = ''
             + '<div class="info-item"><span class="info-label">平台</span><span class="info-value">' + esc(game.system || '-') + '</span></div>'
             + '<div class="info-item"><span class="info-label">语言</span><span class="info-value">' + esc(game.language || '-') + '</span></div>'
             + '<div class="info-item"><span class="info-label">大小</span><span class="info-value">' + esc(game.size || '-') + '</span></div>'
             + '<div class="info-item"><span class="info-label">版本</span><span class="info-value">' + esc(game.version || '-') + '</span></div>'
             + '<div class="info-item"><span class="info-label">发行商</span><span class="info-value">' + esc(game.publisher || '-') + '</span></div>'
             + '<div class="info-item"><span class="info-label">开发商</span><span class="info-value">' + esc(game.developer || '-') + '</span></div>';
-        desc.textContent = game.description || '暂无描述';
-        actions.innerHTML = ''
+        .modal-desc.textContent = game.description || '暂无描述';
+        .modal-actions.innerHTML = ''
             + '<button class="btn btn-primary download-btn" data-url="' + esc(game.download_url || '') + '" data-title="' + esc(game.title) + '">下载游戏</button>'
             + '<button class="btn btn-secondary modal-close-btn">关闭</button>';
         modal.classList.add('active');
@@ -109,40 +134,23 @@
 
     // ==================== 事件 ====================
 
-    // 分类点击
-    #category-tabs.addEventListener('click', function (e) {
-        var tab = e.target.closest('.category-tab');
-        if (!tab) return;
-        state.activeCategory = tab.dataset.category;
-        // 更新 active 样式
-        ('.category-tab').forEach(function (t) { t.classList.remove('active'); });
-        tab.classList.add('active');
-        loadHomeGames();
-    });
-
-    // 游戏卡片点击 -> 详情弹窗
-    document.addEventListener('click', function (e) {
+    #game-grid.addEventListener('click', function (e) {
         var card = e.target.closest('.game-card');
         if (!card) return;
-        var id = card.dataset.id;
-        fetchGameDetail(id).then(function (res) {
+        fetchGameDetail(card.dataset.id).then(function (res) {
             if (res.code === 0) showGameDetail(res.data);
         }).catch(function (err) {
             console.error('获取详情失败:', err);
         });
     });
 
-    // 弹窗关闭
     .modal-overlay.addEventListener('click', function (e) {
         if (e.target === this || e.target.classList.contains('modal-close-btn') || e.target.classList.contains('modal-close')) {
             closeModal();
         }
         if (e.target.classList.contains('download-btn')) {
             var url = e.target.dataset.url;
-            if (!url) {
-                alert('该游戏暂无下载链接');
-                return;
-            }
+            if (!url) { alert('该游戏暂无下载链接'); return; }
             var isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent);
             if (isMobile) {
                 window.open(url, '_blank');
@@ -152,41 +160,58 @@
         }
     });
 
-    // 搜索
-    var keywordInput = #keyword-input;
-    if (keywordInput) {
-        keywordInput.addEventListener('input', debounce(function () {
-            state.keyword = keywordInput.value.trim();
-            loadHomeGames();
-        }, 400));
-    }
+    #pagination.addEventListener('click', function (e) {
+        var btn = e.target.closest('button');
+        if (btn && !btn.disabled) {
+            if (btn.dataset.action === 'prev') state.page--;
+            if (btn.dataset.action === 'next') state.page++;
+            loadGames();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        var pageNum = e.target.closest('.page-num');
+        if (pageNum) {
+            state.page = parseInt(pageNum.dataset.page);
+            loadGames();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
+
+    #category-filter.addEventListener('change', function () {
+        state.category = this.value;
+        state.page = 1;
+        loadGames();
+    });
+
+    #keyword-input.addEventListener('input', debounce(function () {
+        state.keyword = this.value.trim();
+        state.page = 1;
+        loadGames();
+    }, 400));
 
     // 移动端菜单
     var menuBtn = .mobile-menu-btn;
     if (menuBtn) {
         menuBtn.addEventListener('click', function () {
-            .main-nav.classList.toggle('open');
+            document.querySelector('.main-nav').classList.toggle('open');
         });
     }
 
     // ==================== 数据加载 ====================
 
-    async function loadHomeGames() {
-        var params = { page: 1, page_size: 8 };
-        if (state.activeCategory) params.category = state.activeCategory;
-        if (state.keyword) params.keyword = state.keyword;
-
-        // 并行加载最新和热门
-        var [latestRes, hotRes] = await Promise.all([
-            fetchGames(Object.assign({}, params, { sort: 'latest' })),
-            fetchGames(Object.assign({}, params, { sort: 'hot' })),
-        ]);
-
-        if (latestRes.code === 0) {
-            renderGameCards(latestRes.data.games || latestRes.data.items, 'latest-grid');
-        }
-        if (hotRes.code === 0) {
-            renderGameCards(hotRes.data.games || hotRes.data.items, 'hot-grid');
+    async function loadGames() {
+        try {
+            var res = await fetchGames();
+            if (res.code === 0) {
+                var data = res.data;
+                state.games = data.games || data.items;
+                state.total = data.total;
+                renderGameCards(state.games);
+                renderPagination();
+                updateResultCount();
+            }
+        } catch (err) {
+            console.error('加载失败:', err);
+            #game-grid.innerHTML = '<div class="empty-state"><p>加载失败，请检查后端服务是否启动</p></div>';
         }
     }
 
@@ -212,17 +237,12 @@
 
     async function init() {
         try {
-            // 加载分类
             var catRes = await fetchCategories();
             if (catRes.code === 0) {
-                state.categories = catRes.data;
-                renderCategoryTabs(catRes.data);
+                renderCategories(catRes.data);
             }
-            // 加载游戏
-            await loadHomeGames();
-        } catch (err) {
-            console.error('初始化失败:', err);
-        }
+        } catch (e) { /* 分类加载失败不阻塞 */ }
+        loadGames();
     }
 
     document.addEventListener('DOMContentLoaded', init);
