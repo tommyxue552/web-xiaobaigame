@@ -1,4 +1,4 @@
-﻿-- ============================================================
+-- ============================================================
 -- 灏忕櫧娓告垙璧勬簮绔?- 鏁版嵁搴撳垵濮嬪寲鑴氭湰
 -- ============================================================
 -- 鏁版嵁搴擄細SQLite锛堝彲杩佺Щ鑷?MySQL/PostgreSQL锛?
@@ -111,6 +111,34 @@ CREATE TABLE IF NOT EXISTS download_resources (
 CREATE INDEX IF NOT EXISTS idx_dr_game_id   ON download_resources(game_id);
 CREATE INDEX IF NOT EXISTS idx_dr_provider  ON download_resources(provider);
 CREATE INDEX IF NOT EXISTS idx_dr_status    ON download_resources(status);
+
+-- -----------------------------------------------------------
+-- 下载渠道表
+-- -----------------------------------------------------------
+CREATE TABLE IF NOT EXISTS download_providers (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    code            VARCHAR(20)     NOT NULL UNIQUE       , -- 渠道代码：baidu/quark/alipan/115/xunlei/uc/mobile/tianyi
+    name            VARCHAR(50)     NOT NULL              , -- 渠道名称：百度网盘/夸克网盘...
+    icon            VARCHAR(255)    DEFAULT ''            , -- 图标
+    status          VARCHAR(20)     DEFAULT 'active'      , -- active/disabled
+    display_order   INTEGER         DEFAULT 0             , -- 排序
+    remark          TEXT            DEFAULT ''            , -- 备注
+    created_at      DATETIME        DEFAULT CURRENT_TIMESTAMP,
+    updated_at      DATETIME        DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 渠道种子数据
+INSERT OR IGNORE INTO download_providers (id, code, name, icon, status, display_order, remark) VALUES (1, 'baidu', '百度网盘', '', 'active', 1, '');
+INSERT OR IGNORE INTO download_providers (id, code, name, icon, status, display_order, remark) VALUES (2, 'quark', '夸克网盘', '', 'active', 2, '');
+INSERT OR IGNORE INTO download_providers (id, code, name, icon, status, display_order, remark) VALUES (3, 'alipan', '阿里云盘', '', 'active', 3, '');
+INSERT OR IGNORE INTO download_providers (id, code, name, icon, status, display_order, remark) VALUES (4, '115', '115网盘', '', 'active', 4, '');
+INSERT OR IGNORE INTO download_providers (id, code, name, icon, status, display_order, remark) VALUES (5, 'xunlei', '迅雷云盘', '', 'active', 5, '');
+INSERT OR IGNORE INTO download_providers (id, code, name, icon, status, display_order, remark) VALUES (6, 'uc', 'UC网盘', '', 'active', 6, '');
+INSERT OR IGNORE INTO download_providers (id, code, name, icon, status, display_order, remark) VALUES (7, 'mobile', '中国移动云盘', '', 'active', 7, '');
+INSERT OR IGNORE INTO download_providers (id, code, name, icon, status, display_order, remark) VALUES (8, 'tianyi', '天翼云盘', '', 'active', 8, '');
+
+CREATE INDEX IF NOT EXISTS idx_dp_code   ON download_providers(code);
+CREATE INDEX IF NOT EXISTS idx_dp_status ON download_providers(status);
 
 CREATE TABLE IF NOT EXISTS admin_users (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,

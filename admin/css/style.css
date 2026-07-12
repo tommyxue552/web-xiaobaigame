@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
  * 小白游戏资源站 - 后台管理样式
  * ============================================================ */
 
@@ -201,20 +201,58 @@ body.admin-body {
 /* ---------- Dashboard Stats ---------- */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 28px;
 }
+/* 下方三列统计卡片 */
 .stat-card {
     background: #fff;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border-radius: 10px;
+    padding: 28px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
 }
-.stat-card .stat-label { font-size: 0.8rem; color: #888; margin-bottom: 4px; }
-.stat-card .stat-value { font-size: 1.8rem; font-weight: 700; color: #1a1a2e; }
-.stat-card .stat-sub { font-size: 0.75rem; color: #aaa; margin-top: 4px; }
-
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+.stat-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    border-radius: 0 2px 2px 0;
+}
+.stat-card.stat-total::before { background: #0f3460; }
+.stat-card.stat-published::before { background: #2e7d32; }
+.stat-card.stat-draft::before { background: #e65100; }
+.stat-card.stat-category::before { background: #6a1b9a; }
+.stat-card .stat-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    flex-shrink: 0;
+}
+.stat-card.stat-total .stat-icon { background: #e8eaf6; color: #0f3460; }
+.stat-card.stat-published .stat-icon { background: #e8f5e9; color: #2e7d32; }
+.stat-card.stat-draft .stat-icon { background: #fff3e0; color: #e65100; }
+.stat-card.stat-category .stat-icon { background: #f3e5f5; color: #6a1b9a; }
+.stat-card .stat-info { flex: 1; }
+.stat-card .stat-label { font-size: 0.82rem; color: #888; margin-bottom: 6px; font-weight: 500; }
+.stat-card .stat-value { font-size: 2rem; font-weight: 700; color: #1a1a2e; line-height: 1; }
+.stat-card .stat-sub { font-size: 0.78rem; color: #aaa; margin-top: 6px; }
 /* ---------- Table ---------- */
 .panel {
     background: #fff;
@@ -284,6 +322,10 @@ table tr:hover { background: #fafbff; }
 .provider-quark { background: #e8f5e9; color: #2e7d32; }
 .provider-alipan { background: #fff3e0; color: #e65100; }
 .provider-115 { background: #fce4ec; color: #c62828; }
+.provider-xunlei { background: #e8eaf6; color: #283593; }
+.provider-uc { background: #fff8e1; color: #e65100; }
+.provider-mobile { background: #e0f2f1; color: #00695c; }
+.provider-tianyi { background: #f3e5f5; color: #6a1b9a; }
 /* game select dropdown */
 .game-select-container { position: relative; }
 .game-select-dropdown {
@@ -540,8 +582,11 @@ table tr:hover { background: #fafbff; }
     .sidebar .sidebar-footer { display: none; }
     .main { margin-left: 60px; }
     .form-row { grid-template-columns: 1fr; }
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } .stat-card { padding: 20px 16px; } .stat-card .stat-value { font-size: 1.8rem; } .stat-card .stat-icon { width: 42px; height: 42px; font-size: 1.3rem; } 
     .toolbar { flex-direction: column; align-items: flex-start; }
     .toolbar .search-input { width: 100%; }
     .toolbar .toolbar-info { margin-left: 0; }
 }
+
+
+

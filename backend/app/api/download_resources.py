@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-?????? API
+下载资源管理 API
 --------------
-??????? CRUD ????????????????
-????????????
+下载资源 CRUD 接口。支持通过 provider_id 关联 DownloadProvider。
+兼容旧的 provider 字符串字段。
 """
-
 from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -16,54 +15,94 @@ from typing import Optional
 from ..core.database import get_db
 from ..core.auth import get_current_admin
 from ..models.download_resource import DownloadResource
+from ..models.download_provider import DownloadProvider
 from ..models.game import Game
 from ..models.admin_user import AdminUser
 
 router = APIRouter(prefix="/api/admin", tags=["Download Resources"])
 
-VALID_PROVIDERS = {"baidu", "quark", "alipan", "115"}
 VALID_STATUSES = {"pending", "active", "disabled", "invalid"}
-
-PROVIDER_LABELS = {"baidu": "百度网盘", "quark": "夸克网盘", "alipan": "阿里云盘", "115": "115网盘"}
 
 
 # ==================== Pydantic models ====================
 
 
 class DownloadResourceCreate(BaseModel):
-    game_id: int = Field(..., ge=1, description="????ID")
-    provider: Optional[str] = Field("baidu", max_length=20, description="?????baidu/quark/alipan/115")
-    title: Optional[str] = Field("", max_length=255, description="????")
-    origin_url: Optional[str] = Field("", max_length=1000, description="????URL")
-    my_share_url: Optional[str] = Field("", max_length=1000, description="??????")
-    extract_code: Optional[str] = Field("", max_length=20, description="???")
-    remark: Optional[str] = Field("", max_length=2000, description="??")
-    display_order: Optional[int] = Field(0, description="????")
-    status: Optional[str] = Field("active", max_length=20, description="???pending/active/disabled/invalid")
+    game_id: int = Field(..., ge=1, description="关联游戏ID")
+    provider_id: Optional[int] = Field(None, description="下载渠道ID（优先使用）")
+    provider: Optional[str] = Field("baidu", max_length=20, description="网盘代码（兼容旧数据，baidu/quark/alipan/115）")
+    title: Optional[str] = Field("", max_length=255, description="资源标题")
+    origin_url: Optional[str] = Field("", max_length=1000, description="原始来源URL")
+    my_share_url: Optional[str] = Field("", max_length=1000, description="我的分享链接")
+    extract_code: Optional[str] = Field("", max_length=20, description="提取码")
+    remark: Optional[str] = Field("", max_length=2000, description="备注")
+    display_order: Optional[int] = Field(0, description="显示排序")
+    status: Optional[str] = Field("active", max_length=20, description="状态")
 
 
 class DownloadResourceUpdate(BaseModel):
-    game_id: Optional[int] = Field(None, ge=1, description="????ID")
-    provider: Optional[str] = Field(None, max_length=20, description="????")
-    title: Optional[str] = Field(None, max_length=255, description="????")
-    origin_url: Optional[str] = Field(None, max_length=1000, description="????URL")
-    my_share_url: Optional[str] = Field(None, max_length=1000, description="??????")
-    extract_code: Optional[str] = Field(None, max_length=20, description="???")
-    remark: Optional[str] = Field(None, max_length=2000, description="??")
-    display_order: Optional[int] = Field(None, description="????")
-    status: Optional[str] = Field(None, max_length=20, description="??")
+    game_id: Optional[int] = Field(None, ge=1, description="关联游戏ID")
+    provider_id: Optional[int] = Field(None, description="下载渠道ID（优先使用）")
+    provider: Optional[str] = Field(None, max_length=20, description="网盘代码（兼容旧数据）")
+    title: Optional[str] = Field(None, max_length=255, description="资源标题")
+    origin_url: Optional[str] = Field(None, max_length=1000, description="原始来源URL")
+    my_share_url: Optional[str] = Field(None, max_length=1000, description="我的分享链接")
+    extract_code: Optional[str] = Field(None, max_length=20, description="提取码")
+    remark: Optional[str] = Field(None, max_length=2000, description="备注")
+    display_order: Optional[int] = Field(None, description="显示排序")
+    status: Optional[str] = Field(None, max_length=20, description="状态")
 
 
-# ==================== Serialization ====================
+# ==================== Helpers ====================
+
+
+async def _resolve_provider_id(db: AsyncSession, provider_id: Optional[int], provider_code: Optional[str]) -> int:
+    """Resolve provider_id from provider_id or provider code string."""
+    if provider_id:
+        # Verify it exists
+        result = await db.execute(select(DownloadProvider).where(DownloadProvider.id == provider_id))
+        if not result.scalar_one_or_none():
+            raise HTTPException(status_code=400, detail=f"渠道ID {provider_id} 不存在")
+        return provider_id
+
+    if provider_code:
+        result = await db.execute(select(DownloadProvider).where(DownloadProvider.code == provider_code))
+        p = result.scalar_one_or_none()
+        if p:
+            return p.id
+        # Fallback: try to find by name
+        result = await db.execute(select(DownloadProvider).where(DownloadProvider.name == provider_code))
+        p = result.scalar_one_or_none()
+        if p:
+            return p.id
+
+    # Default: use provider code to find, or fallback to baidu
+    if provider_code:
+        result = await db.execute(select(DownloadProvider).where(DownloadProvider.code == "baidu"))
+        p = result.scalar_one_or_none()
+        if p:
+            return p.id
+
+    raise HTTPException(status_code=400, detail="无法确定下载渠道，请指定 provider_id")
 
 
 def serialize_download_resource(dr: DownloadResource) -> dict:
+    provider_code = ""
+    provider_label = ""
+    if dr.provider_rel:
+        provider_code = dr.provider_rel.code
+        provider_label = dr.provider_rel.name
+    elif dr.provider:
+        provider_code = dr.provider
+        provider_label = dr.provider  # fallback
+
     return {
         "id": dr.id,
         "game_id": dr.game_id,
         "game_title": dr.game.title if dr.game else "",
-        "provider": dr.provider,
-        "provider_label": PROVIDER_LABELS.get(dr.provider, dr.provider),
+        "provider_id": dr.provider_id,
+        "provider": provider_code,
+        "provider_label": provider_label,
         "title": dr.title,
         "origin_url": dr.origin_url,
         "my_share_url": dr.my_share_url,
@@ -81,27 +120,33 @@ def serialize_download_resource(dr: DownloadResource) -> dict:
 
 @router.get(
     "/download-resources",
-    summary="[??] ??????",
+    summary="[后台] 下载资源列表",
 )
 async def list_download_resources(
-    game_id: Optional[int] = Query(None, ge=1, description="???ID??"),
-    keyword: Optional[str] = Query(None, description="???????"),
-    provider: Optional[str] = Query(None, description="???????"),
-    status_filter: Optional[str] = Query(None, alias="status", description="?????"),
+    game_id: Optional[int] = Query(None, ge=1, description="按游戏ID筛选"),
+    keyword: Optional[str] = Query(None, description="按游戏名称搜索"),
+    provider: Optional[str] = Query(None, description="按网盘代码筛选"),
+    provider_id: Optional[int] = Query(None, description="按渠道ID筛选"),
+    status_filter: Optional[str] = Query(None, alias="status", description="按状态筛选"),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     admin: AdminUser = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
 ):
-    # Base query with eager-load game
-    query = select(DownloadResource).options(joinedload(DownloadResource.game))
+    query = select(DownloadResource).options(
+        joinedload(DownloadResource.game),
+        joinedload(DownloadResource.provider_rel),
+    )
     count_query = select(func.count()).select_from(DownloadResource)
 
     if game_id:
         query = query.where(DownloadResource.game_id == game_id)
         count_query = count_query.where(DownloadResource.game_id == game_id)
 
-    if provider:
+    if provider_id:
+        query = query.where(DownloadResource.provider_id == provider_id)
+        count_query = count_query.where(DownloadResource.provider_id == provider_id)
+    elif provider:
         query = query.where(DownloadResource.provider == provider)
         count_query = count_query.where(DownloadResource.provider == provider)
 
@@ -109,7 +154,6 @@ async def list_download_resources(
         query = query.where(DownloadResource.status == status_filter)
         count_query = count_query.where(DownloadResource.status == status_filter)
 
-    # Game name search via JOIN
     if keyword:
         query = query.join(Game).where(Game.title.contains(keyword))
         count_query = count_query.join(Game).where(Game.title.contains(keyword))
@@ -140,7 +184,7 @@ async def list_download_resources(
 
 @router.get(
     "/download-resources/{resource_id}",
-    summary="[??] ??????",
+    summary="[后台] 获取单个资源",
 )
 async def get_download_resource(
     resource_id: int,
@@ -149,12 +193,12 @@ async def get_download_resource(
 ):
     result = await db.execute(
         select(DownloadResource)
-        .options(joinedload(DownloadResource.game))
+        .options(joinedload(DownloadResource.game), joinedload(DownloadResource.provider_rel))
         .where(DownloadResource.id == resource_id)
     )
     resource = result.unique().scalar_one_or_none()
     if not resource:
-        raise HTTPException(status_code=404, detail="???????")
+        raise HTTPException(status_code=404, detail="资源不存在")
 
     return {
         "code": 0,
@@ -165,7 +209,7 @@ async def get_download_resource(
 
 @router.post(
     "/download-resources",
-    summary="[??] ??????",
+    summary="[后台] 新增下载资源",
     status_code=201,
 )
 async def create_download_resource(
@@ -173,44 +217,49 @@ async def create_download_resource(
     admin: AdminUser = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
 ):
-    if body.provider and body.provider not in VALID_PROVIDERS:
-        raise HTTPException(
-            status_code=400,
-            detail=f"???????????{', '.join(sorted(VALID_PROVIDERS))}",
-        )
     if body.status and body.status not in VALID_STATUSES:
         raise HTTPException(
             status_code=400,
-            detail=f"?????????{', '.join(sorted(VALID_STATUSES))}",
+            detail=f"无效的状态值，可选：{', '.join(sorted(VALID_STATUSES))}",
         )
 
     game_result = await db.execute(select(Game).where(Game.id == body.game_id))
     if not game_result.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="?????")
+        raise HTTPException(status_code=400, detail="游戏不存在")
 
-    resource = DownloadResource(**body.model_dump())
+    # Resolve provider
+    pid = await _resolve_provider_id(db, body.provider_id, body.provider)
+
+    # Build resource data
+    data = body.model_dump()
+    data["provider_id"] = pid
+    # Keep provider string for backward compat
+    if not data.get("provider"):
+        data["provider"] = body.provider or "baidu"
+
+    resource = DownloadResource(**data)
     db.add(resource)
     await db.flush()
     await db.refresh(resource)
 
-    # Re-fetch with game relationship
+    # Re-fetch with relationships
     result = await db.execute(
         select(DownloadResource)
-        .options(joinedload(DownloadResource.game))
+        .options(joinedload(DownloadResource.game), joinedload(DownloadResource.provider_rel))
         .where(DownloadResource.id == resource.id)
     )
     resource = result.unique().scalar_one()
 
     return {
         "code": 0,
-        "message": "????",
+        "message": "创建成功",
         "data": serialize_download_resource(resource),
     }
 
 
 @router.put(
     "/download-resources/{resource_id}",
-    summary="[??] ??????",
+    summary="[后台] 更新下载资源",
 )
 async def update_download_resource(
     resource_id: int,
@@ -220,29 +269,33 @@ async def update_download_resource(
 ):
     result = await db.execute(
         select(DownloadResource)
-        .options(joinedload(DownloadResource.game))
+        .options(joinedload(DownloadResource.game), joinedload(DownloadResource.provider_rel))
         .where(DownloadResource.id == resource_id)
     )
     resource = result.unique().scalar_one_or_none()
     if not resource:
-        raise HTTPException(status_code=404, detail="???????")
+        raise HTTPException(status_code=404, detail="资源不存在")
 
     update_data = body.model_dump(exclude_unset=True)
 
-    if "provider" in update_data and update_data["provider"] not in VALID_PROVIDERS:
-        raise HTTPException(
-            status_code=400,
-            detail=f"???????????{', '.join(sorted(VALID_PROVIDERS))}",
-        )
     if "status" in update_data and update_data["status"] not in VALID_STATUSES:
         raise HTTPException(
             status_code=400,
-            detail=f"?????????{', '.join(sorted(VALID_STATUSES))}",
+            detail=f"无效的状态值，可选：{', '.join(sorted(VALID_STATUSES))}",
         )
     if "game_id" in update_data:
         game_result = await db.execute(select(Game).where(Game.id == update_data["game_id"]))
         if not game_result.scalar_one_or_none():
-            raise HTTPException(status_code=400, detail="?????")
+            raise HTTPException(status_code=400, detail="游戏不存在")
+
+    # Resolve provider if provided
+    if "provider_id" in update_data or "provider" in update_data:
+        pid = await _resolve_provider_id(
+            db,
+            update_data.pop("provider_id", None),
+            update_data.pop("provider", None),
+        )
+        update_data["provider_id"] = pid
 
     for key, value in update_data.items():
         setattr(resource, key, value)
@@ -252,14 +305,14 @@ async def update_download_resource(
 
     return {
         "code": 0,
-        "message": "????",
+        "message": "更新成功",
         "data": serialize_download_resource(resource),
     }
 
 
 @router.delete(
     "/download-resources/{resource_id}",
-    summary="[??] ??????",
+    summary="[后台] 删除下载资源",
 )
 async def delete_download_resource(
     resource_id: int,
@@ -271,12 +324,12 @@ async def delete_download_resource(
     )
     resource = result.scalar_one_or_none()
     if not resource:
-        raise HTTPException(status_code=404, detail="???????")
+        raise HTTPException(status_code=404, detail="资源不存在")
 
     await db.delete(resource)
     await db.flush()
 
-    return {"code": 0, "message": "????"}
+    return {"code": 0, "message": "删除成功"}
 
 
 # ==================== Games list helper ====================
@@ -284,10 +337,10 @@ async def delete_download_resource(
 
 @router.get(
     "/download-resources-games",
-    summary="[??] ?????????????????",
+    summary="[后台] 获取游戏列表（用于下拉选择）",
 )
 async def list_games_for_select(
-    keyword: Optional[str] = Query(None, description="?????"),
+    keyword: Optional[str] = Query(None, description="游戏名称搜索"),
     admin: AdminUser = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
 ):

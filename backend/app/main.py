@@ -18,6 +18,7 @@ from .api.crawler import router as crawler_router
 from .api.transfer import router as transfer_router
 from .api.ai import router as ai_router
 from .api.download_resources import router as download_resources_router
+from .api.download_providers import router as download_providers_router
 
 
 @asynccontextmanager
@@ -55,7 +56,8 @@ app.include_router(admin_router)       # 后台管理接口
 app.include_router(crawler_router)     # 采集接口（预留）
 app.include_router(transfer_router)    # 资源中转接口（预留）
 app.include_router(ai_router)          # AI ??????
-app.include_router(download_resources_router)   # ???????? 接口（预留）
+app.include_router(download_resources_router)   #
+app.include_router(download_providers_router)   # 下载渠道管理接口 ???????? 接口（预留）
 
 # ==================== 静态文件服务 ====================
 # 前台页面
