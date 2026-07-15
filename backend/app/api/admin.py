@@ -223,7 +223,7 @@ async def admin_login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
 
             status_code=status.HTTP_401_UNAUTHORIZED,
 
-            detail="????????",
+            detail="用户名或密码错误",
 
         )
 
@@ -233,7 +233,7 @@ async def admin_login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
 
         "code": 0,
 
-        "message": "????",
+        "message": "登录成功",
 
         "data": {"token": token, "username": admin.username},
 
@@ -275,11 +275,11 @@ async def admin_list_games(
 
     page_size: int = Query(20, ge=1, le=100),
 
-    keyword: str = Query("", description="?????"),
+    keyword: str = Query("", description="搜索关键词"),
 
-    publish_status: str = Query("", description="?????"),
+    publish_status: str = Query("", description="发布状态"),
 
-    category: str = Query("", description="?????"),
+    category: str = Query("", description="分类筛选"),
 
     admin: AdminUser = Depends(get_current_admin),
 
@@ -341,7 +341,7 @@ async def admin_get_game(game_id: int, admin: AdminUser = Depends(get_current_ad
 
     if not game:
 
-        raise HTTPException(status_code=404, detail="?????")
+        raise HTTPException(status_code=404, detail="游戏不存在")
 
     return {"code": 0, "message": "success", "data": await serialize_game(game, db)}
 
@@ -372,7 +372,7 @@ async def admin_create_game(body: GameCreate, admin: AdminUser = Depends(get_cur
 
     await db.refresh(game)
 
-    return {"code": 0, "message": "????", "data": await serialize_game(game, db)}
+    return {"code": 0, "message": "创建成功", "data": await serialize_game(game, db)}
 
 
 
@@ -388,7 +388,7 @@ async def admin_update_game(game_id: int, body: GameUpdate, admin: AdminUser = D
 
     if not game:
 
-        raise HTTPException(status_code=404, detail="?????")
+        raise HTTPException(status_code=404, detail="游戏不存在")
 
     update_data = body.model_dump(exclude_unset=True)
     tag_ids = update_data.pop("tag_ids", None)
@@ -405,7 +405,7 @@ async def admin_update_game(game_id: int, body: GameUpdate, admin: AdminUser = D
 
     await db.refresh(game)
 
-    return {"code": 0, "message": "????", "data": await serialize_game(game, db)}
+    return {"code": 0, "message": "更新成功", "data": await serialize_game(game, db)}
 
 
 
@@ -421,13 +421,13 @@ async def admin_delete_game(game_id: int, admin: AdminUser = Depends(get_current
 
     if not game:
 
-        raise HTTPException(status_code=404, detail="?????")
+        raise HTTPException(status_code=404, detail="游戏不存在")
 
     await db.delete(game)
 
     await db.flush()
 
-    return {"code": 0, "message": "????"}
+    return {"code": 0, "message": "删除成功"}
 
 
 
@@ -469,7 +469,7 @@ async def admin_create_category(body: CategoryCreate, admin: AdminUser = Depends
 
     if existing.scalar_one_or_none():
 
-        raise HTTPException(status_code=400, detail="????? slug ???")
+        raise HTTPException(status_code=400, detail="分类名或 slug 已存在")
 
     cat = Category(name=body.name, slug=body.slug)
 
@@ -479,7 +479,7 @@ async def admin_create_category(body: CategoryCreate, admin: AdminUser = Depends
 
     await db.refresh(cat)
 
-    return {"code": 0, "message": "????", "data": {"id": cat.id, "name": cat.name, "slug": cat.slug, "game_count": 0}}
+    return {"code": 0, "message": "创建成功", "data": {"id": cat.id, "name": cat.name, "slug": cat.slug, "game_count": 0}}
 
 
 
@@ -495,7 +495,7 @@ async def admin_update_category(cat_id: int, body: CategoryUpdate, admin: AdminU
 
     if not cat:
 
-        raise HTTPException(status_code=404, detail="?????")
+        raise HTTPException(status_code=404, detail="分类不存在")
 
     update_data = body.model_dump(exclude_unset=True)
 
@@ -507,7 +507,7 @@ async def admin_update_category(cat_id: int, body: CategoryUpdate, admin: AdminU
 
     await db.refresh(cat)
 
-    return {"code": 0, "message": "????", "data": {"id": cat.id, "name": cat.name, "slug": cat.slug}}
+    return {"code": 0, "message": "更新成功", "data": {"id": cat.id, "name": cat.name, "slug": cat.slug}}
 
 
 
@@ -523,13 +523,13 @@ async def admin_delete_category(cat_id: int, admin: AdminUser = Depends(get_curr
 
     if not cat:
 
-        raise HTTPException(status_code=404, detail="?????")
+        raise HTTPException(status_code=404, detail="分类不存在")
 
     await db.delete(cat)
 
     await db.flush()
 
-    return {"code": 0, "message": "????"}
+    return {"code": 0, "message": "删除成功"}
 
 
 

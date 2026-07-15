@@ -28,7 +28,7 @@ class Settings(BaseSettings):
         return f"sqlite+aiosqlite:///{db_path}"
 
     # ????
-    APP_NAME: str = "???????"
+    APP_NAME: str = "小白游戏资源站"
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = True
     HOST: str = "0.0.0.0"

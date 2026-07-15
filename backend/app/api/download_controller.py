@@ -20,7 +20,7 @@ from ..models.download_resource import DownloadResource
 router = APIRouter(tags=["Download"])
 
 MOBILE_UA_REGEX = r"Android|iPhone|iPad|iPod|webOS|BlackBerry|Windows Phone"
-SITE_NAME = "???????"
+SITE_NAME = "小白游戏资源站"
 SITE_URL = "http://localhost:8000"
 
 _qr_cache: dict[str, bytes] = {}
@@ -229,7 +229,7 @@ def _render_pc_download_page(token_str: str, info: dict) -> str:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>???? - {game_title} - {SITE_NAME}</title>
+    <title>电脑下载 - {game_title} - {SITE_NAME}</title>
     <style>
         *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
         body {{
@@ -406,7 +406,7 @@ def _render_error_page(message: str) -> str:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>?? - {SITE_NAME}</title>
+    <title>错误 - {SITE_NAME}</title>
     <style>
         *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
         body {{
