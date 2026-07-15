@@ -1,121 +1,4 @@
-/**
- * С����Ϸ��Դվ- ��̨����ű�
- * ================================
- * ������Ϸ��Դ�������Ǳ��̡���Ϸ�������������ģ�顣 * ����API �����Я��JWT ��֤���ơ� */
-
-(function () {
-    "use strict";
-
-    // ==================== DOM ���� ====================
-    const $ = (sel) => document.querySelector(sel);
-    const $$ = (sel) => document.querySelectorAll(sel);
-
-    // ==================== Auth ���� ====================
-    function getToken() { return localStorage.getItem("admin_token"); }
-    function getUsername() { return localStorage.getItem("admin_username") || "����Ա"; }
-    function clearAuth() { localStorage.removeItem("admin_token"); localStorage.removeItem("admin_username"); document.cookie = "admin_token=; path=/; max-age=0; SameSite=Lax"; }
-
-    async function apiFetch(url, options) {
-        if (!options) options = {};
-        if (!options.headers) options.headers = {};
-        var token = getToken();
-        if (token) options.headers["Authorization"] = "Bearer " + token;
-        if (options.body && typeof options.body === "object" && !(options.body instanceof FormData)) {
-            options.headers["Content-Type"] = "application/json";
-            options.body = JSON.stringify(options.body);
-        }
-        var res = await fetch(url, options);
-        if (res.status === 401) { clearAuth(); window.location.href = "/admin/login"; throw new Error("��֤�ѹ���"); }
-        return res;
-    }
-
-    async function checkAuth() {
-        var token = getToken();
-        if (!token) { window.location.href = "/admin/login"; return false; }
-        try {
-            var res = await apiFetch("/api/admin/me");
-            if (!res.ok) { clearAuth(); window.location.href = "/admin/login"; return false; }
-            return true;
-        } catch (e) { clearAuth(); window.location.href = "/admin/login"; return false; }
-    }
-
-    function handleLogout() { clearAuth(); window.location.href = "/admin/login"; }
-
-    // ==================== �������� ====================
-    var MENUS = [
-        { id: "dashboard", label: "仪表盘", icon: "\u25A0" },
-        { id: "games", label: "游戏管理", icon: "\u25B6" },
-        { id: "categories", label: "分类管理", icon: "\u25CB" },
-        { id: "resources", label: "下载资源", icon: "\u2193" },
-        { id: "tags", label: "标签管理", icon: "\u2605" },
-        { id: "dlstats", label: "下载统计", icon: "\u21C5" },
-        { id: "crawler", label: "采集管理", icon: "\u21C4", hidden: true },
-        { id: "transfer", label: "资源中转", icon: "\u21C5", hidden: true },
-        { id: "ai", label: "AI助手", icon: "\u2699", hidden: true },
-        { id: "settings", label: "系统设置", icon: "\u2630" },
-    ];
-    // ==================== ״̬====================
-    var state = {
-        currentMenu: "dashboard",
-        games: { items: [], total: 0, page: 1, pageSize: 20 },
-        gameFilter: { keyword: "", publishStatus: "", category: "" },
-        categories: [],
-    };
-
-    // ==================== ���ߺ��� ====================
-    function escHtml(str) {
-        if (!str) return "";
-        var div = document.createElement("div");
-        div.textContent = str;
-        return div.innerHTML;
-    }
-    function statusLabel(s) { var m = { published: "�ѷ���", draft: "�ݸ�", hidden: "����" }; return m[s] || s; }
-    function transferLabel(s) { var m = { pending: "����ת", transferring: "��ת��", completed: "�����", failed: "ʧ��" }; return m[s] || s; }
-    function debounce(fn, delay) { var t; return function() { var ctx=this, a=arguments; clearTimeout(t); t=setTimeout(function(){fn.apply(ctx,a)},delay); }; }
-
-    // ==================== �������� ====================
-    function initSidebar() {
-        var nav = $(".sidebar-nav");
-        var html = ""; var inHidden = false;
-        MENUS.forEach(function(m) {
-            if (m.hidden && !inHidden) { html += "<div class=\"nav-divider\">��չ���ܣ���������</div>"; inHidden = true; }
-            html += "<div class=\"nav-item " + (m.hidden ? "hidden-menu" : "") + (m.id === state.currentMenu ? " active" : "") + "\" data-menu=\"" + m.id + "\"><span class=\"nav-icon\">" + m.icon + "</span><span>" + m.label + "</span></div>";
-        });
-        nav.innerHTML = html;
-        nav.addEventListener("click", function(e) {
-            var item = e.target.closest(".nav-item"); if (!item) return;
-            switchMenu(item.dataset.menu);
-        });
-        var footer = $(".sidebar-footer");
-        if (footer) {
-            footer.innerHTML = "<span>" + escHtml(getUsername()) + "</span> | <span class=\"logout-link\" id=\"logout-btn\">�˳�</span>";
-            document.getElementById("logout-btn").addEventListener("click", handleLogout);
-        }
-    }
-
-    function switchMenu(menuId) {
-        state.currentMenu = menuId;
-        $$(".nav-item").forEach(function(el) { el.classList.toggle("active", el.dataset.menu === menuId); });
-        var menu = MENUS.find(function(m) { return m.id === menuId; });
-        $(".main-header h2").textContent = menu ? menu.label : "";
-        renderPage(menuId);
-    }
-
-    // ==================== ҳ��·�� ====================
-    function renderPage(menuId) {
-        var body = $(".main-body");
-        switch (menuId) {
-        case "dashboard": renderDashboard(body); break;
-        case "games": renderGameManagement(body); break;
-        case "categories": renderCategoryManagement(body); break;
-        case "resources": renderResourceManagement(body); break;
-    case "dlstats": renderDownloadStats(body); break;`n        case "tags": renderTagManagement(body); break;`n        case "settings": renderSettings(body); break;
-        default: renderPlaceholder(body, MENUS.find(function(m){return m.id===menuId;})); break;
-        }
-    }
-
-    // ==================== �Ǳ���====================
-    async function renderDashboard(body) {
+async function renderDashboard(body) {
         body.innerHTML = "<div style=\"padding:40px;text-align:center;color:#888;\">������..</div>";
         try {
             var res = await apiFetch("/api/admin/stats");
@@ -124,13 +7,13 @@
             var stats = data.data;
             var publishRate = stats.total_games > 0 ? Math.round(stats.published_games / stats.total_games * 100) : 0;
             body.innerHTML =
-                "<div class=\"stats-grid\">" +
+                ""<div class=\"stats-grid\">" +
                 "<div class=\"stat-card stat-total\"><div class=\"stat-icon\">&#x1F3AE;</div><div class=\"stat-info\"><div class=\"stat-label\">��Ϸ����</div><div class=\"stat-value\">" + stats.total_games + "</div><div class=\"stat-sub\">ȫ����Ϸ��Դ</div></div></div>" +
                 "<div class=\"stat-card stat-published\"><div class=\"stat-icon\">&#x2705;</div><div class=\"stat-info\"><div class=\"stat-label\">�ѷ���</div><div class=\"stat-value\">" + stats.published_games + "</div><div class=\"stat-sub\">������ " + publishRate + "%</div></div></div>" +
                 "<div class=\"stat-card stat-draft\"><div class=\"stat-icon\">&#x1F4DD;</div><div class=\"stat-info\"><div class=\"stat-label\">�ݸ�</div><div class=\"stat-value\">" + stats.draft_games + "</div><div class=\"stat-sub\">���༭����</div></div></div>" +
                 "<div class=\"stat-card stat-category\"><div class=\"stat-icon\">&#x1F4C2;</div><div class=\"stat-info\"><div class=\"stat-label\">��������</div><div class=\"stat-value\">" + stats.category_count + "</div><div class=\"stat-sub\">��Ϸ����</div></div></div>" +
                 "</div>" +
-                "<div class=\"panel\">" +
+                "class=\"panel\">" +
                 "<div class=\"panel-header\"><h3>�����ӵ���Ϸ</h3></div>" +
                 "<ul class=\"recent-list\">" +
                 (stats.recent_games.length === 0
@@ -168,7 +51,7 @@
             "<div class=\"panel-header\"><h3>��Ϸ�б�</h3><button class=\"btn btn-primary\" id=\"add-game-btn\">+ �����Ϸ</button></div>" +
             "<div class=\"toolbar\">" +
             "<input type=\"text\" class=\"search-input\" id=\"game-search\" placeholder=\"������Ϸ����...\">" +
-            "<select id=\"game-status-filter\"><option value=\"\">ȫ��״̬</option><option value=\"published\">�ѷ���</option><option value=\"draft\">�ݸ�</option><option value=\"hidden\">����</option></select>" +
+            "<select id=\"game-status-filter\"><option value=\"\">ȫ��״̬/option><option value=\"published\">�ѷ���/option><option value=\"draft\">�ݸ�</option><option value=\"hidden\">����</option></select>" +
             "<select id=\"game-category-filter\"><option value=\"\">ȫ������</option></select>" +
             "<span class=\"toolbar-info\" id=\"game-count-info\"></span>" +
             "</div>" +
@@ -187,15 +70,15 @@
             "<div class=\"form-row\"><div class=\"form-group\"><label>����ƽ̨</label><input name=\"system\" placeholder=\"��Windows/Mac/Linux\"></div>" +
             "<div class=\"form-group\"><label>����</label><input name=\"language\" placeholder=\"������/Ӣ��\"></div></div>" +
             "<div class=\"form-row\"><div class=\"form-group\"><label>�ļ���С</label><input name=\"size\" placeholder=\"��50GB\"></div>" +
-            "<div class=\"form-group\"><label>�汾��</label><input name=\"version\" placeholder=\"��v1.2.3\"></div></div>" +
-            "<div class=\"form-row\"><div class=\"form-group\"><label>������</label><input name=\"publisher\"></div>" +
+            "<div class=\"form-group\"><label>�汾��/label><input name=\"version\" placeholder=\"��v1.2.3\"></div></div>" +
+            "<div class=\"form-row\"><div class=\"form-group\"><label>������/label><input name=\"publisher\"></div>" +
             "<div class=\"form-group\"><label>������</label><input name=\"developer\"></div></div>" +
             "<div class=\"form-row\"><div class=\"form-group\"><label>��������</label><input name=\"release_date\" type=\"date\"></div>" +
-            "<div class=\"form-group\"><label>����״̬</label><select name=\"publish_status\"><option value=\"draft\">�ݸ�</option><option value=\"published\">�ѷ���</option><option value=\"hidden\">����</option></select></div></div>" +
+            "<div class=\"form-group\"><label>����״̬/label><select name=\"publish_status\"><option value=\"draft\">�ݸ�</option><option value=\"published\">�ѷ���/option><option value=\"hidden\">����</option></select></div></div>" +
             "<div class=\"form-group\"><label>标签</label><div id=\"tag-checkboxes\" class=\"tag-checkboxes\" style=\"display:flex;flex-wrap:wrap;gap:8px;padding:8px;border:1px solid #333;border-radius:4px;min-height:36px;max-height:150px;overflow-y:auto;\"><span style=\"color:#888;\">加载中...</span></div></div>" +
             "<div class=\"form-row\"><div class=\"form-group\"><label>��������</label><input name=\"download_url\" placeholder=\"https://...\"></div>" +
             "<div class=\"form-group\"><label>ԭʼ��Դ URL</label><input name=\"original_url\" placeholder=\"https://...\"></div></div>" +
-            "<div class=\"form-row\"><div class=\"form-group\"><label>��ת״̬</label><select name=\"transfer_status\"><option value=\"pending\">����ת</option><option value=\"transferring\">��ת��</option><option value=\"completed\">�����</option><option value=\"failed\">ʧ��</option></select></div>" +
+            "<div class=\"form-row\"><div class=\"form-group\"><label>��ת״̬/label><select name=\"transfer_status\"><option value=\"pending\">����ת/option><option value=\"transferring\">��ת��/option><option value=\"completed\">�����/option><option value=\"failed\">ʧ��</option></select></div>" +
             "<div class=\"form-group\"><label>�ɼ���Դ</label><input name=\"crawler_source\" placeholder=\"��steam\"></div></div>" +
             "<div class=\"form-group\"><label>��Ϸ����</label><textarea name=\"description\" rows=\"4\" placeholder=\"������Ϸ���..\"></textarea></div>" +
             "<input type=\"hidden\" name=\"id\" value=\"\">" +
@@ -241,14 +124,14 @@
                 var info = document.getElementById("game-count-info");
                 if (info) info.textContent = "��" + data.data.total + " ��";
             }
-        } catch (e) { if (e.message.indexOf("��֤") === -1) container.innerHTML = "<div class=\"empty-state\"><p>����ʧ�ܣ���ȷ�Ϻ�˷��������</p></div>"; }
+        } catch (e) { if (e.message.indexOf("��֤") === -1) container.innerHTML = "<div class=\"empty-state\"><p>����ʧ�ܣ���ȷ�Ϻ�˷��������/p></div>"; }
     }
 
     function renderGameTable() {
         var container = $(".game-table-container");
         var games = state.games.items;
-        if (games.length === 0) { container.innerHTML = "<div class=\"empty-state\"><p>������Ϸ���ݣ�����������Ϸ����ʼ</p></div>"; return; }
-        var html = "<table><thead><tr><th>ID</th><th>����</th><th>����</th><th>����</th><th>��С</th><th>����״̬</th><th>����</th><th>����ʱ��</th><th>����</th></tr></thead><tbody>";
+        if (games.length === 0) { container.innerHTML = "<div class=\"empty-state\"><p>������Ϸ���ݣ�����������Ϸ����ʼ/p></div>"; return; }
+        var html = "<table><thead><tr><th>ID</th><th>����</th><th>����</th><th>����</th><th>��С</th><th>����״̬/th><th>����</th><th>����ʱ��</th><th>����</th></tr></thead><tbody>";
         games.forEach(function(g) {
             html += "<tr>" +
                 "<td>" + g.id + "</td>" +
@@ -271,14 +154,14 @@
         var pg = document.getElementById("game-pagination");
         if (!pg) return;
         var totalPages = Math.ceil(state.games.total / state.games.pageSize) || 1;
-        var html = "<button " + (state.games.page <= 1 ? "disabled" : "") + " data-page=\"" + (state.games.page - 1) + "\">��һҳ</button>";
+        var html = "<button " + (state.games.page <= 1 ? "disabled" : "") + " data-page=\"" + (state.games.page - 1) + "\">��һҳ/button>";
         var start = Math.max(1, state.games.page - 2);
         var end = Math.min(totalPages, state.games.page + 2);
         for (var i = start; i <= end; i++) {
             html += "<button class=\"" + (i === state.games.page ? "active" : "") + "\" data-page=\"" + i + "\">" + i + "</button>";
         }
-        html += "<button " + (state.games.page >= totalPages ? "disabled" : "") + " data-page=\"" + (state.games.page + 1) + "\">��һҳ</button>";
-        html += "<span class=\"page-info\">��" + state.games.page + "/" + totalPages + " ҳ</span>";
+        html += "<button " + (state.games.page >= totalPages ? "disabled" : "") + " data-page=\"" + (state.games.page + 1) + "\">��һҳ/button>";
+        html += "<span class=\"page-info\">��" + state.games.page + "/" + totalPages + " ҳ/span>";
         pg.innerHTML = html;
         pg.querySelectorAll("button[data-page]").forEach(function(btn) {
             btn.addEventListener("click", function() { state.games.page = parseInt(btn.dataset.page); loadGameTable(); });
@@ -420,7 +303,7 @@
 
     function renderCategoryTable(container) {
         var cats = state.categories;
-        if (cats.length === 0) { container.innerHTML = "<div class=\"empty-state\"><p>���޷��࣬�������ӷ��ࡹ��ʼ</p></div>"; return; }
+        if (cats.length === 0) { container.innerHTML = "<div class=\"empty-state\"><p>���޷��࣬�������ӷ��ࡹ��ʼ/p></div>"; return; }
         var html = "<table><thead><tr><th>ID</th><th>��������</th><th>URL ��ʶ</th><th>��Ϸ����</th><th>����</th></tr></thead><tbody>";
         cats.forEach(function(c) {
             html += "<tr><td>" + c.id + "</td><td>" + escHtml(c.name) + "</td><td>" + escHtml(c.slug) + "</td><td>" + c.game_count + "</td>" +
@@ -838,11 +721,11 @@ function closeResourceModal() {
             "<div class=\"panel\"><div class=\"panel-header\"><h3>ϵͳ����</h3></div><div class=\"panel-body\" style=\"padding:20px;\">" +
             "<div class=\"form-group\"><label>վ������</label><input value=\"С����Ϸ��Դվ\" disabled></div>" +
             "<div class=\"form-group\"><label>API �汾</label><input value=\"v1.0.0\" disabled></div>" +
-            "<div class=\"form-group\"><label>���ݿ�����</label><input value=\"SQLite�����л� MySQL/PostgreSQL��\" disabled></div>" +
-            "<div class=\"form-group\"><label>�ɼ�����״̬</label><input value=\"δ���ã�Ԥ��ӿ��Ѿ�����\" disabled></div>" +
-            "<div class=\"form-group\"><label>��Դ��ת״̬</label><input value=\"δ���ã�Ԥ��ӿ��Ѿ�����\" disabled></div>" +
-            "<div class=\"form-group\"><label>AI ����״̬</label><input value=\"δ���ã�Ԥ��ӿ��Ѿ�����\" disabled></div>" +
-            "<p style=\"font-size:0.8rem;color:#888;margin-top:16px;\">��������Ϊֻ��չʾ��������ͨ�������ļ��򻷾����������޸ġ�</p>" +
+            "<div class=\"form-group\"><label>���ݿ�����/label><input value=\"SQLite�����л� MySQL/PostgreSQL��\" disabled></div>" +
+            "<div class=\"form-group\"><label>�ɼ�����״̬/label><input value=\"δ���ã�Ԥ��ӿ��Ѿ�����\" disabled></div>" +
+            "<div class=\"form-group\"><label>��Դ��ת״̬/label><input value=\"δ���ã�Ԥ��ӿ��Ѿ�����\" disabled></div>" +
+            "<div class=\"form-group\"><label>AI ����״̬/label><input value=\"δ���ã�Ԥ��ӿ��Ѿ�����\" disabled></div>" +
+            "<p style=\"font-size:0.8rem;color:#888;margin-top:16px;\">��������Ϊֻ��չʾ��������ͨ�������ļ��򻷾����������޸ġ�/p>" +
             "</div></div>";
     }
 
@@ -1021,8 +904,8 @@ function closeResourceModal() {
         body.innerHTML =
             "<div class=\"placeholder-page\"><div class=\"placeholder-icon\">&#x1F6A7;</div>" +
             "<h3>" + menu.label + " - ���ܿ�����</h3>" +
-            "<p>��ģ��ΪԤ����ܣ����ں����汾��ʵ�֡�</p>" +
-            "<p style=\"font-size:0.8rem;color:#bbb;margin-top:8px;\">��� API �ӿ���Ԥ�����ֱ�ӶԽ��ⲿ����</p></div>";
+            "<p>��ģ��ΪԤ����ܣ����ں����汾��ʵ�֡�/p>" +
+            "<p style=\"font-size:0.8rem;color:#bbb;margin-top:8px;\">��� API �ӿ���Ԥ�����ֱ�ӶԽ��ⲿ����/p></div>";
     }
 
     // ==================== ��� ====================
@@ -1044,4 +927,3 @@ function closeResourceModal() {
 
     document.addEventListener("DOMContentLoaded", init);
 })();
-

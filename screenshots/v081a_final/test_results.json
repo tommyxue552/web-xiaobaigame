@@ -1,0 +1,79 @@
+[
+  {
+    "name": "Homepage",
+    "url": "http://localhost:8000/",
+    "status": "PASS",
+    "errors": "[]",
+    "console": "[]",
+    "network": "[]",
+    "body_text": "灏忕櫧娓告垙\n棣栭〉\n娓告垙鍒楄〃\n鍚庡彴绠＄悊\n全部\n动作游戏\n角色扮演\n冒险游戏\n模拟经营\n策略游戏\n射击游戏\n休闲游戏\n鏈€鏂版父鎴\n鏌ョ湅鍏ㄩ儴 →\n艾尔登法环\n动作游戏\n48.6GB\n荒野大镖客2\n冒险游戏\n119.5GB\n星露谷物语\n模拟经营\n560MB\n文明6\n策略游戏\n12.8GB\n空洞骑士\n动作游戏\n3.8GB\n鐑棬鎺ㄨ崘\n鏌ョ湅鍏ㄩ儴 →\n空洞骑士\n动作游戏\n3.8GB\n文明6\n策略游戏\n12.8GB\n星露谷物语\n模拟经营\n560MB\n荒野大镖客2\n冒险游戏\n119.5GB\n艾尔登法环\n动作游戏\n48.6GB\n\n© 2026 灏忕櫧娓告垙璧勬簮绔? All rights reserved.",
+    "game_cards": "10",
+    "grid_info": "HAS_CONTENT(2379 chars, 5 children)",
+    "empty_state": "NO_EMPTY_STATE",
+    "screenshot": "C:\\Users\\xueta\\Documents\\web-xiaobaigame\\screenshots\\v081a_final\\Homepage.png"
+  },
+  {
+    "name": "Games",
+    "url": "http://localhost:8000/games",
+    "status": "PASS",
+    "errors": "[]",
+    "console": "[]",
+    "network": "[]",
+    "body_text": "灏忕櫧娓告垙\n棣栭〉\n娓告垙鍒楄〃\n鍚庡彴绠＄悊\n鍏ㄩ儴娓告垙\n\n共 5 个游戏\n\n鍏ㄩ儴鍒嗙被\n动作游戏\n角色扮演\n冒险游戏\n模拟经营\n策略游戏\n射击游戏\n休闲游戏\n艾尔登法环\n动作游戏\n48.6GB\n荒野大镖客2\n冒险游戏\n119.5GB\n星露谷物语\n模拟经营\n560MB\n文明6\n策略游戏\n12.8GB\n空洞骑士\n动作游戏\n3.8GB\n\n© 2026 灏忕櫧娓告垙璧勬簮绔? All rights reserved.",
+    "game_cards": "5",
+    "grid_info": "HAS_CONTENT(2379 chars, 5 children)",
+    "empty_state": "NO_EMPTY_STATE",
+    "screenshot": "C:\\Users\\xueta\\Documents\\web-xiaobaigame\\screenshots\\v081a_final\\Games.png"
+  },
+  {
+    "name": "Game Detail",
+    "url": "http://localhost:8000/game/elden-ring",
+    "status": "PASS",
+    "errors": "[]",
+    "console": "[]",
+    "network": "['FAILED: https://shared.steamstatic.com/store_item_assets/steam/apps/1174180/ss_66b553f4c209476d3e4ce25e471e2e3d5808ac11.600x338.jpg', 'FAILED: https://shared.steamstatic.com/store_item_assets/steam/apps/413150/ss_ef179f1636dc779c7c3f2f153b68dbd6d3333e17.600x338.jpg']",
+    "body_text": "小白游戏\n首页\n游戏列表\n后台管理\n首页\n/\n游戏列表\n/\n艾尔登法环\n艾尔登法环\n魂系\n开放世界\n奇幻\n游戏分类\n动作游戏\n游戏大小\n48.6GB\n版本\nv1.10\n语言\n中文\n运行平台\nWindows\n开发商\nFromSoftware\n发行商\nBandai Namco\n发行日期\n-\n更新时间\n2026-07-15\n浏览次数\n49\n游戏截图\n游戏简介\n艾尔登法环是以正统黑暗奇幻世界为舞台的动作RPG游戏。走进辽阔的场景与地下迷宫探索未知，挑战困难重重的险境。\n相关推荐\n空洞骑士\n动作游戏3.8GB\n艾尔登法环\n48.6GB\n下载游戏\n\n© 2026 小白游戏资源站. All rights reserved.",
+    "game_cards": "1",
+    "grid_info": "NO_GRID",
+    "empty_state": "NO_EMPTY_STATE",
+    "screenshot": "C:\\Users\\xueta\\Documents\\web-xiaobaigame\\screenshots\\v081a_final\\Game_Detail.png"
+  },
+  {
+    "name": "Admin Redirect",
+    "url": "http://localhost:8000/admin",
+    "redirect_to": "http://localhost:8000/admin/login",
+    "body": "灏忕櫧娓告垙\n\n鍚庡彴绠＄悊绯荤粺\n\n鐢ㄦ埛鍚\n瀵嗙爜\n鐧?褰"
+  },
+  {
+    "name": "Admin Login",
+    "url": "http://localhost:8000/admin/login",
+    "status": "PASS",
+    "errors": "[]",
+    "console": "[]",
+    "network": "[]",
+    "body_text": "灏忕櫧娓告垙\n\n鍚庡彴绠＄悊绯荤粺\n\n鐢ㄦ埛鍚\n瀵嗙爜\n鐧?褰",
+    "game_cards": "0",
+    "grid_info": "NO_GRID",
+    "empty_state": "NO_EMPTY_STATE",
+    "screenshot": "C:\\Users\\xueta\\Documents\\web-xiaobaigame\\screenshots\\v081a_final\\Admin_Login.png"
+  },
+  {
+    "name": "API Auth Check",
+    "url": "http://localhost:8000/api/admin/games",
+    "status_code": "401",
+    "body": "{\"detail\":\"Not authenticated\"}"
+  },
+  {
+    "name": "Admin Dashboard",
+    "url": "http://localhost:8000/admin",
+    "status": "PASS",
+    "errors": "[]",
+    "console": "[]",
+    "network": "[]",
+    "body_text": "灏忕櫧娓告垙 鍚庡彴\n■\n仪表盘\n▶\n游戏管理\n○\n分类管理\n★\n标签管理\n↓\n下载资源\n⚓\n下载渠道\n⇅\n下载统计\n☆\nSEO管理\n��Չ���ܣ���������\n☰\n系统设置\nadmin | �˳�/span>\n浠〃鐩\nadmin\n🎮\n游戏总数\n80\n全部游戏资源\n✅\n已发布\n5\n占比 6%\n📝\n草稿\n75\n待编辑发布\n📂\n游戏分类\n7\n游戏分类\n🏷\n标签总数\n3\n游戏标签\n⬇\n下载资源\n2\n资源总数\n🌐\n下载渠道\n8\n渠道总数\n👁\n总浏览量\n58\n累计浏览\n最近添加的游戏\nTest v0.8.1A\n�ݸ�\nAction\n2026-07-15\n猫咪邮政 Build.24152930 单机+联机（Cat Mail Co.）免安装中文版\n�ݸ�\n休闲, 可联机, 小游戏, 必看!\n2026-07-12\n【冒险】鬼谷八荒tap绅士版v3.1.19_内置作弊器+解锁全DLC+修改立绘 中文版\n�ݸ�\n免付费解锁完整版, 国风仙侠, 必看!\n2026-07-12\n造化仙缘 v20260708（Destiny of Immortal）免安装中文版\n�ݸ�\n国风, 小游戏, 必看!, 角色扮演\n2026-07-12\n伯吉的温馨厨房 Build.22126212（Burgie's cozy kitchen）免安装中文版\n�ݸ�\n小游戏, 必看!, 模拟经营, 烹饪\n2026-0",
+    "game_cards": "0",
+    "grid_info": "NO_GRID",
+    "empty_state": "NO_EMPTY_STATE",
+    "screenshot": "C:\\Users\\xueta\\Documents\\web-xiaobaigame\\screenshots\\v081a_final\\Admin_Dashboard.png"
+  }
+]

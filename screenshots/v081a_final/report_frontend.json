@@ -1,0 +1,29 @@
+[
+  {
+    "name": "01 Homepage /",
+    "status": 200,
+    "title": "灏忕櫧娓告垙璧勬簮绔?- 娴烽噺绮惧搧娓告垙鍏嶈垂涓嬭浇",
+    "has_content": true,
+    "body_length": 309,
+    "console_errors": [],
+    "passed": true
+  },
+  {
+    "name": "02 /games Page",
+    "status": 200,
+    "title": "娓告垙鍒楄〃 - 灏忕櫧娓告垙璧勬簮绔",
+    "has_content": true,
+    "body_length": 211,
+    "console_errors": [],
+    "passed": true
+  },
+  {
+    "name": "03 /game/1 Detail",
+    "status": 200,
+    "title": "艾尔登法环 - 小白游戏资源站",
+    "has_content": true,
+    "body_length": 308,
+    "console_errors": [],
+    "passed": true
+  }
+]

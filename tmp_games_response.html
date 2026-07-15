@@ -1,0 +1,82 @@
+﻿﻿<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>娓告垙鍒楄〃 - 灏忕櫧娓告垙璧勬簮绔?/title>
+    <meta name='description' content='娴忚鍏ㄩ儴娓告垙璧勬簮'>
+    <link rel='stylesheet' href='/frontend/css/style.css'>
+</head>
+<body>
+
+    <!-- ==================== 椤堕儴瀵艰埅 ==================== -->
+    <header class='site-header'>
+        <div class='header-inner'>
+            <a href='/' class='logo'>灏忕櫧<span>娓告垙</span></a>
+            <nav class='main-nav'>
+                <a href='/'>棣栭〉</a>
+                <a href='/frontend/games.html' class='active'>娓告垙鍒楄〃</a>
+                <a href='/admin'>鍚庡彴绠＄悊</a>
+            </nav>
+            <button class='mobile-menu-btn' aria-label='鑿滃崟'>
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ==================== 椤甸潰鏍囬 ==================== -->
+    <section class='games-page-header'>
+        <div class='container'>
+            <h1>鍏ㄩ儴娓告垙</h1>
+            <p class='result-count' id='result-count'>鍔犺浇涓?..</p>
+        </div>
+    </section>
+
+    <!-- ==================== 绛涢€夋爮 ==================== -->
+    <main class='container'>
+        <div class='games-page-filters'>
+            <select id='category-filter'>
+                <option value=''>鍏ㄩ儴鍒嗙被</option>
+            </select>
+            <input type='text' id='keyword-input' placeholder='鎼滅储娓告垙鍚嶇О...' autocomplete='off'>
+        </div>
+
+        <!-- ==================== 娓告垙鍒楄〃 ==================== -->
+        <div class='game-grid' id='game-grid'>
+            <!-- JS 鍔ㄦ€佹覆鏌?-->
+        </div>
+
+        <!-- ==================== 鍒嗛〉 ==================== -->
+        <div class='pagination' id='pagination'>
+            <!-- JS 鍔ㄦ€佹覆鏌?-->
+        </div>
+    </main>
+
+    <!-- ==================== 娓告垙璇︽儏寮圭獥 ==================== -->
+    <div class='modal-overlay'>
+        <div class='modal'>
+            <div class='modal-cover-wrapper'>
+                <button class='modal-close'>&times;</button>
+                <img class='modal-cover' src='' alt='娓告垙灏侀潰'>
+            </div>
+            <div class='modal-body'>
+                <h2 class='modal-title'></h2>
+                <div class='modal-tags'></div>
+                <div class='modal-info'></div>
+                <p class='modal-desc'></p>
+                <div class='modal-actions'></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 椤佃剼 ==================== -->
+    <footer class='site-footer'>
+        <div class='container'>
+            <p>&copy; 2026 灏忕櫧娓告垙璧勬簮绔? All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src='/frontend/js/games.js'></script>
+</body>
+</html>
+

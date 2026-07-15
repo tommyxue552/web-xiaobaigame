@@ -1,0 +1,26 @@
+[
+  {
+    "name": "04 /admin Redirect to Login",
+    "url": "http://localhost:8000/admin/login",
+    "has_login": true,
+    "title": "绠＄悊鍛樼櫥褰?- 灏忕櫧娓告垙璧勬簮绔",
+    "console_errors": [],
+    "passed": true
+  },
+  {
+    "name": "05 /admin/login Page",
+    "status": 200,
+    "title": "绠＄悊鍛樼櫥褰?- 灏忕櫧娓告垙璧勬簮绔",
+    "has_form": false,
+    "console_errors": [],
+    "passed": false
+  },
+  {
+    "name": "06 Admin Login Flow",
+    "final_url": "http://localhost:8000/admin",
+    "title": "鍚庡彴绠＄悊 - 灏忕櫧娓告垙璧勬簮绔",
+    "logged_in": true,
+    "console_errors": [],
+    "passed": true
+  }
+]

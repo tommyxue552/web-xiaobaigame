@@ -114,8 +114,8 @@
         var g = state.game;
 
         // 隐藏骨架，显示内容
-        $('#detail-loading').style.display = 'none';
-        $('#detail-content').style.display = 'block';
+        var _dl = $('#detail-loading'); if (_dl) _dl.style.display = 'none';
+        var _dc = $('#detail-content'); if (_dc) _dc.style.display = 'block';
 
         // 面包屑
         document.title = (g.seo_title || (g.title + ' - 小白游戏资源站'));

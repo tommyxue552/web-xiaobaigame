@@ -221,6 +221,7 @@ def _render_game_detail_html(game, meta, game_dict):
         </div>
     </footer>
 
+    <script>window.__GAME_DATA__ = """ + gjson + """;</script>
     <script src="/frontend/js/game-detail.js"></script>
 </body>
 </html>"""

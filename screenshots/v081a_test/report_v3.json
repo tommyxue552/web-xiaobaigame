@@ -1,0 +1,111 @@
+[
+  {
+    "name": "01_Homepage",
+    "url": "http://localhost:8000/",
+    "passed": true,
+    "errors": [],
+    "warnings": [],
+    "http_status": 200,
+    "screenshot": "C:\\Users\\xueta\\Documents\\web-xiaobaigame\\screenshots\\v081a_test\\01_Homepage.png",
+    "screenshot_size": 100278,
+    "body_text_length": 309,
+    "body_text_preview": "灏忕櫧娓告垙\n棣栭〉\n娓告垙鍒楄〃\n鍚庡彴绠＄悊\n全部\n动作游戏\n角色扮演\n冒险游戏\n模拟经营\n策略游戏\n射击游戏\n休闲游戏\n鏈€鏂版父鎴\n鏌ョ湅鍏ㄩ儴 →\n艾尔登法环\n动作游戏\n48.6GB\n荒野大"
+  },
+  {
+    "name": "02_Games",
+    "url": "http://localhost:8000/games",
+    "passed": true,
+    "errors": [],
+    "warnings": [],
+    "http_status": 200,
+    "screenshot": "C:\\Users\\xueta\\Documents\\web-xiaobaigame\\screenshots\\v081a_test\\02_Games.png",
+    "screenshot_size": 96783,
+    "body_text_length": 211,
+    "body_text_preview": "灏忕櫧娓告垙\n棣栭〉\n娓告垙鍒楄〃\n鍚庡彴绠＄悊\n鍏ㄩ儴娓告垙\n\n共 5 个游戏\n\n鍏ㄩ儴鍒嗙被\n动作游戏\n角色扮演\n冒险游戏\n模拟经营\n策略游戏\n射击游戏\n休闲游戏\n艾尔登法环\n动作游戏\n48.6G"
+  },
+  {
+    "name": "03_GameDetail_1",
+    "url": "http://localhost:8000/game/1",
+    "passed": true,
+    "errors": [],
+    "warnings": [
+      "EXTERNAL BLOCKED: https://shared.steamstatic.com/store_item_assets/steam/apps/413150/ss_ef179f1636dc779c7c3f2f153b68dbd6d3333e17.600x338.jpg",
+      "EXTERNAL BLOCKED: https://shared.steamstatic.com/store_item_assets/steam/apps/1174180/ss_66b553f4c209476d3e4ce25e471e2e3d5808ac11.600x338.jpg"
+    ],
+    "http_status": 200,
+    "screenshot": "C:\\Users\\xueta\\Documents\\web-xiaobaigame\\screenshots\\v081a_test\\03_GameDetail_1.png",
+    "screenshot_size": 128191,
+    "body_text_length": 308,
+    "body_text_preview": "小白游戏\n首页\n游戏列表\n后台管理\n首页\n/\n游戏列表\n/\n艾尔登法环\n艾尔登法环\n魂系\n开放世界\n奇幻\n游戏分类\n动作游戏\n游戏大小\n48.6GB\n版本\nv1.10\n语言\n中文\n运行平台\nWindo"
+  },
+  {
+    "name": "04_GameDetail_2",
+    "url": "http://localhost:8000/game/2",
+    "passed": true,
+    "errors": [],
+    "warnings": [
+      "EXTERNAL BLOCKED: https://shared.steamstatic.com/store_item_assets/steam/apps/1174180/ss_66b553f4c209476d3e4ce25e471e2e3d5808ac11.600x338.jpg",
+      "EXTERNAL BLOCKED: https://shared.steamstatic.com/store_item_assets/steam/apps/413150/ss_ef179f1636dc779c7c3f2f153b68dbd6d3333e17.600x338.jpg"
+    ],
+    "http_status": 200,
+    "screenshot": "C:\\Users\\xueta\\Documents\\web-xiaobaigame\\screenshots\\v081a_test\\04_GameDetail_2.png",
+    "screenshot_size": 128746,
+    "body_text_length": 293,
+    "body_text_preview": "小白游戏\n首页\n游戏列表\n后台管理\n首页\n/\n游戏列表\n/\n荒野大镖客2\n荒野大镖客2\n开放世界\n西部\n剧情\n游戏分类\n冒险游戏\n游戏大小\n119.5GB\n版本\nv1.0.1436.28\n语言\n中文\n"
+  },
+  {
+    "name": "05_Admin_Redirect",
+    "url": "http://localhost:8000/admin",
+    "final_url": "http://localhost:8000/admin/login",
+    "passed": true,
+    "errors": [],
+    "screenshot": "C:\\Users\\xueta\\Documents\\web-xiaobaigame\\screenshots\\v081a_test\\05_Admin_Redirect.png",
+    "screenshot_size": 327116,
+    "body_text_length": 31
+  },
+  {
+    "name": "06_AdminLogin",
+    "url": "http://localhost:8000/admin/login",
+    "passed": true,
+    "errors": [],
+    "warnings": [],
+    "http_status": 200,
+    "screenshot": "C:\\Users\\xueta\\Documents\\web-xiaobaigame\\screenshots\\v081a_test\\06_AdminLogin.png",
+    "screenshot_size": 327116,
+    "body_text_length": 31,
+    "body_text_preview": "灏忕櫧娓告垙\n\n鍚庡彴绠＄悊绯荤粺\n\n鐢ㄦ埛鍚\n瀵嗙爜\n鐧?褰"
+  },
+  {
+    "name": "07_AdminLoginFlow",
+    "url": "http://localhost:8000/admin/login",
+    "passed": true,
+    "errors": [],
+    "final_url": "http://localhost:8000/admin",
+    "dashboard_body": "灏忕櫧娓告垙 鍚庡彴\n■\n仪表盘\n▶\n游戏管理\n○\n分类管理\n★\n标签管理\n↓\n下载资源\n⚓\n下载渠道\n⇅\n下载统计\n☆\nSEO管理\n��Չ���ܣ���������\n☰\n系统设置\nadmin | �˳�/span>\n浠〃鐩\nadmin\n🎮\n游戏总数\n80\n全部游戏资源\n✅\n已发布\n5\n占比 6%\n📝\n草稿\n75\n待编辑发布\n📂\n游戏分类\n7\n游戏分类\n🏷\n标签总数\n3\n游戏标签\n⬇\n下载资源\n",
+    "screenshot": "C:\\Users\\xueta\\Documents\\web-xiaobaigame\\screenshots\\v081a_test\\07_AdminDashboard.png",
+    "screenshot_size": 126514,
+    "body_text_length": 946
+  },
+  {
+    "name": "08_AdminAPI_Auth",
+    "passed": true,
+    "errors": [],
+    "http_status": 401
+  },
+  {
+    "name": "09_API_Games",
+    "url": "http://localhost:8000/api/games?page=1&page_size=12",
+    "passed": true,
+    "errors": [],
+    "http_status": 200,
+    "body_preview": "{\"code\":0,\"message\":\"success\",\"data\":{\"games\":[{\"id\":1,\"title\":\"艾尔登法环\",\"slug\":\"elden-ring\",\"cover\":\""
+  },
+  {
+    "name": "10_API_Categories",
+    "url": "http://localhost:8000/api/categories",
+    "passed": true,
+    "errors": [],
+    "http_status": 200,
+    "body_preview": "{\"code\":0,\"message\":\"success\",\"data\":[{\"id\":1,\"name\":\"动作游戏\",\"slug\":\"action\"},{\"id\":2,\"name\":\"角色扮演\",\""
+  }
+]

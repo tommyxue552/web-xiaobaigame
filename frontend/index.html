@@ -1,80 +1,79 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang='zh-CN'>
 <head>
     <meta charset='UTF-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <title>灏忕櫧娓告垙璧勬簮绔?- 娴烽噺绮惧搧娓告垙鍏嶈垂涓嬭浇</title>
-    <meta name='description' content='灏忕櫧娓告垙璧勬簮绔欙紝鎻愪緵娴烽噺绮惧搧鍗曟満娓告垙鍏嶈垂涓嬭浇'>
+    <title>小白游戏资源站 - 海量精品游戏免费下载</title>
+    <meta name='description' content='小白游戏资源站，提供海量精品单机游戏免费下载'>
     <link rel='stylesheet' href='/frontend/css/style.css'>
 </head>
 <body>
 
-    <!-- ==================== 椤堕儴瀵艰埅 ==================== -->
+    <!-- ==================== 顶部导航 ==================== -->
     <header class='site-header'>
         <div class='header-inner'>
-            <a href='/' class='logo'>灏忕櫧<span>娓告垙</span></a>
+            <a href='/' class='logo'>小白<span>游戏</span></a>
             <nav class='main-nav'>
-                <a href='/' class='active'>棣栭〉</a>
-                <a href='/frontend/games.html'>娓告垙鍒楄〃</a>
-                <a href='/admin'>鍚庡彴绠＄悊</a>
+                <a href='/' class='active'>首页</a>
+                <a href='/frontend/games.html'>游戏列表</a>
             </nav>
-            <button class='mobile-menu-btn' aria-label='鑿滃崟'>
+            <button class='mobile-menu-btn' aria-label='菜单'>
                 <span></span><span></span><span></span>
             </button>
         </div>
     </header>
 
-    <!-- ==================== 鎼滅储鏍?==================== -->
+    <!-- ==================== 搜索栏==================== -->
     <section class='search-section'>
         <div class='container'>
             <div class='search-box'>
                 <svg class='search-icon' viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2'>
                     <circle cx='11' cy='11' r='8'/><path d='m21 21-4.35-4.35'/>
                 </svg>
-                <input type='text' id='keyword-input' placeholder='鎼滅储娓告垙鍚嶇О...' autocomplete='off'>
+                <input type='text' id='keyword-input' placeholder='搜索游戏名称...' autocomplete='off'>
             </div>
         </div>
     </section>
 
-    <!-- ==================== 鍒嗙被瀵艰埅 ==================== -->
+    <!-- ==================== 分类导航 ==================== -->
     <section class='category-nav'>
         <div class='container'>
             <div class='category-tabs' id='category-tabs'>
-                <!-- JS 鍔ㄦ€佹覆鏌?-->
+                <!-- JS 动态渲染-->
             </div>
         </div>
     </section>
 
-    <!-- ==================== 涓讳綋鍐呭 ==================== -->
+    <!-- ==================== 主体内容 ==================== -->
     <main class='container main-content'>
-        <!-- 鏈€鏂版父鎴?-->
+        <!-- 最新游戏-->
         <section class='game-section'>
             <div class='section-header'>
-                <h2 class='section-title'>鏈€鏂版父鎴?/h2>
-                <a href='/frontend/games.html' class='section-more'>鏌ョ湅鍏ㄩ儴 &rarr;</a>
+                <h2 class='section-title'>最新游戏</h2>
+                <a href='/frontend/games.html' class='section-more'>查看全部 &rarr;</a>
             </div>
             <div class='game-grid' id='latest-grid'>
-                <!-- JS 鍔ㄦ€佹覆鏌?-->
+                <!-- JS 动态渲染-->
             </div>
         </section>
 
-        <!-- 鐑棬娓告垙 -->
+        <!-- 热门游戏 -->
         <section class='game-section'>
             <div class='section-header'>
-                <h2 class='section-title'>鐑棬鎺ㄨ崘</h2>
-                <a href='/frontend/games.html' class='section-more'>鏌ョ湅鍏ㄩ儴 &rarr;</a>
+                <h2 class='section-title'>热门推荐</h2>
+                <a href='/frontend/games.html' class='section-more'>查看全部 &rarr;</a>
             </div>
             <div class='game-grid' id='hot-grid'>
-                <!-- JS 鍔ㄦ€佹覆鏌?-->
+                <!-- JS 动态渲染-->
             </div>
         </section>
     </main>
 
-    <!-- ==================== 娓告垙璇︽儏寮圭獥 ==================== -->
+    <!-- ==================== 游戏详情弹窗 ==================== -->
     <div class='modal-overlay'>
         <div class='modal'>
             <button class='modal-close'>&times;</button>
-            <img class='modal-cover' src='' alt='娓告垙灏侀潰'>
+            <img class='modal-cover' src='' alt='游戏封面'>
             <div class='modal-body'>
                 <h2 class='modal-title'></h2>
                 <div class='modal-tags'></div>
@@ -85,10 +84,10 @@
         </div>
     </div>
 
-    <!-- ==================== 椤佃剼 ==================== -->
+    <!-- ==================== 页脚 ==================== -->
     <footer class='site-footer'>
         <div class='container'>
-            <p>&copy; 2026 灏忕櫧娓告垙璧勬簮绔? All rights reserved.</p>
+            <p>&copy; 2026 小白游戏资源站 All rights reserved.</p>
         </div>
     </footer>
 

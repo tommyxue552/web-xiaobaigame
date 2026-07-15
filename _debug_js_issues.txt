@@ -1,0 +1,133 @@
+Line 15: function getUsername() { return localStorage.getItem("admin_username") || "����Ա"; }
+Line 28: if (res.status === 401) { clearAuth(); window.location.href = "/admin/login"; throw new Error("��֤�ѹ���"); }
+Line 72: function statusLabel(s) { var m = { published: "�ѷ���", draft: "�ݸ�", hidden: "����" }; return m[s] || s; }
+Line 73: function transferLabel(s) { var m = { pending: "����ת", transferring: "��ת��", completed: "�����", failed: "ʧ��" }; retu
+Line 81: if (m.hidden && !inHidden) { html += "<div class=\"nav-divider\">��չ���ܣ���������</div>"; inHidden = true; }
+Line 91: footer.innerHTML = "<span>" + escHtml(getUsername()) + "</span> | <span class=\"logout-link\" id=\"logout-btn\">�˳�/span
+Line 119: body.innerHTML = "<div style=\"padding:40px;text-align:center;color:#888;\">������..</div>";
+Line 123: if (data.code !== 0) throw new Error("��ȡͳ������ʧ��");
+Line 128: "<div class=\"stat-card stat-total\"><div class=\"stat-icon\">&#x1F3AE;</div><div class=\"stat-info\"><div class=\"stat-
+Line 129: "<div class=\"stat-card stat-published\"><div class=\"stat-icon\">&#x2705;</div><div class=\"stat-info\"><div class=\"st
+Line 130: "<div class=\"stat-card stat-draft\"><div class=\"stat-icon\">&#x1F4DD;</div><div class=\"stat-info\"><div class=\"stat-
+Line 131: "<div class=\"stat-card stat-category\"><div class=\"stat-icon\">&#x1F4C2;</div><div class=\"stat-info\"><div class=\"st
+Line 134: "<div class=\"panel-header\"><h3>�����ӵ���Ϸ</h3></div>" +
+Line 137: ? "<li style=\"justify-content:center;color:#888;\">������Ϸ����</li>"
+Line 153: "<div><span style=\"color:#888;font-size:0.85rem;\">API �汾</span><br><span style=\"font-weight:600;\">v1.0.0</span></div
+Line 154: "<div><span style=\"color:#888;font-size:0.85rem;\">���ݿ�</span><br><span style=\"font-weight:600;\">SQLite<</span></div
+Line 155: "<div><span style=\"color:#888;font-size:0.85rem;\">�ɼ�����<</span><br><span style=\"font-weight:600;color:#f57f17;\">��
+Line 156: "<div><span style=\"color:#888;font-size:0.85rem;\">��Դ��ת<</span><br><span style=\"font-weight:600;color:#f57f17;\">���
+Line 157: "<div><span style=\"color:#888;font-size:0.85rem;\">AI ����<</span><br><span style=\"font-weight:600;color:#f57f17;\">��
+Line 160: body.innerHTML = "<div class=\"empty-state\"><p>����ͳ��ʧ��: " + escHtml(e.message) + "</p></div>";
+Line 168: "<div class=\"panel-header\"><h3>��Ϸ�б�</h3><button class=\"btn btn-primary\" id=\"add-game-btn\">+ �����Ϸ</button></div
+Line 170: "<input type=\"text\" class=\"search-input\" id=\"game-search\" placeholder=\"������Ϸ����...\">" +
+Line 171: "<select id=\"game-status-filter\"><option value=\"\">ȫ��״̬/option><option value=\"published\">�ѷ���/option><option valu
+Line 172: "<select id=\"game-category-filter\"><option value=\"\">ȫ������</option></select>" +
+Line 175: "<div class=\"panel-body\"><div class=\"game-table-container\"><p style=\"padding:20px;color:#888;\">������..</p></div><
+Line 181: "<div class=\"modal-header\"><h3>�����Ϸ</h3><button class=\"modal-close-btn\">&times;</button></div>" +
+Line 183: "<div class=\"form-row\"><div class=\"form-group\"><label>��Ϸ���� *</label><input name=\"title\" required placeholder=\"
+Line 184: "<div class=\"form-group\"><label>URL ��ʶ *</label><input name=\"slug\" required placeholder=\"��grand-theft-auto-v\"></
+Line 185: "<div class=\"form-row\"><div class=\"form-group\"><label>����ͼƬ URL</label><input name=\"cover\" placeholder=\"https://
+Line 186: "<div class=\"form-group\"><label>����</label><select name=\"category\" id=\"game-category-select\"><option value=\"\">�
+Line 187: "<div class=\"form-row\"><div class=\"form-group\"><label>����ƽ̨</label><input name=\"system\" placeholder=\"��Windows/M
+Line 188: "<div class=\"form-group\"><label>����</label><input name=\"language\" placeholder=\"������/Ӣ��\"></div></div>" +
+Line 189: "<div class=\"form-row\"><div class=\"form-group\"><label>�ļ���С</label><input name=\"size\" placeholder=\"��50GB\"></di
+Line 190: "<div class=\"form-group\"><label>�汾��/label><input name=\"version\" placeholder=\"��v1.2.3\"></div></div>" +
+Line 191: "<div class=\"form-row\"><div class=\"form-group\"><label>������/label><input name=\"publisher\"></div>" +
+Line 192: "<div class=\"form-group\"><label>������</label><input name=\"developer\"></div></div>" +
+Line 193: "<div class=\"form-row\"><div class=\"form-group\"><label>��������</label><input name=\"release_date\" type=\"date\"></d
+Line 194: "<div class=\"form-group\"><label>����״̬/label><select name=\"publish_status\"><option value=\"draft\">�ݸ�</option><opti
+Line 196: "<div class=\"form-row\"><div class=\"form-group\"><label>��������</label><input name=\"download_url\" placeholder=\"htt
+Line 197: "<div class=\"form-group\"><label>ԭʼ��Դ URL</label><input name=\"original_url\" placeholder=\"https://...\"></div></div>
+Line 198: "<div class=\"form-row\"><div class=\"form-group\"><label>��ת״̬/label><select name=\"transfer_status\"><option value=\"p
+Line 199: "<div class=\"form-group\"><label>�ɼ���Դ</label><input name=\"crawler_source\" placeholder=\"��steam\"></div></div>" +
+Line 200: "<div class=\"form-group\"><label>��Ϸ����</label><textarea name=\"description\" rows=\"4\" placeholder=\"������Ϸ���..\">
+Line 203: "<div class=\"modal-footer\"><button class=\"btn btn-outline modal-cancel-btn\">ȡ��</button><button class=\"btn btn-prim
+Line 219: if (sel) sel.innerHTML = "<option value=\"\">��ѡ�����</option>" + opts;
+Line 221: if (fil) fil.innerHTML = "<option value=\"\">ȫ������</option>" + opts;
+Line 223: } catch (e) { console.error("���ط���ʧ��:", e); }
+Line 242: if (info) info.textContent = "��" + data.data.total + " ��";
+Line 244: } catch (e) { if (e.message.indexOf("��֤") === -1) container.innerHTML = "<div class=\"empty-state\"><p>����ʧ�ܣ���ȷ�Ϻ�˷�
+Line 250: if (games.length === 0) { container.innerHTML = "<div class=\"empty-state\"><p>������Ϸ���ݣ�����������Ϸ����ʼ/p></div>"; r
+Line 251: var html = "<table><thead><tr><th>ID</th><th>����</th><th>����</th><th>����</th><th>��С</th><th>����״̬/th><th>����</th><
+Line 262: "<td><button class=\"btn btn-sm btn-outline edit-btn\" data-id=\"" + g.id + "\">�༭</button> " +
+Line 263: "<button class=\"btn btn-sm btn-danger delete-btn\" data-id=\"" + g.id + "\" data-title=\"" + escHtml(g.title) + "\">ɾ��
+Line 274: var html = "<button " + (state.games.page <= 1 ? "disabled" : "") + " data-page=\"" + (state.games.page - 1) + "\">��һҳ/
+Line 280: html += "<button " + (state.games.page >= totalPages ? "disabled" : "") + " data-page=\"" + (state.games.page + 1) + "\"
+Line 281: html += "<span class=\"page-info\">��" + state.games.page + "/" + totalPages + " ҳ/span>";
+Line 291: $(".game-modal .modal-header h3").textContent = "�����Ϸ";
+Line 305: if (deleteBtn) { var id = deleteBtn.dataset.id; var t = deleteBtn.dataset.title || ("ID: " + id); if (confirm("ȷ��ɾ����Ϸ
+Line 347: if (data.code === 0) { alert(id ? "���³ɹ�" : "�����ɹ�"); closeGameModal(); await loadGameTable(); }
+Line 348: else { alert("����ʧ��: " + (data.detail || data.message || "δ֪����")); }
+Line 349: } catch (e) { alert("����ʧ��: " + e.message); }
+Line 376: $(".game-modal .modal-header h3").textContent = "�༭��Ϸ";
+Line 386: else { alert("ɾ��ʧ��: " + (data.detail || data.message)); }
+Line 387: } catch (e) { alert("����ʧ��: " + e.message); }
+Line 394: "<div class=\"panel-header\"><h3>�������</h3><button class=\"btn btn-primary\" id=\"add-category-btn\">+ ��ӷ���</button>
+Line 395: "<div class=\"panel-body\"><div class=\"category-table-container\"><p style=\"padding:20px;color:#888;\">������..</p></d
+Line 399: "<div class=\"modal-header\"><h3>��ӷ���</h3><button class=\"modal-close-btn cat-modal-close\">&times;</button></div>" +
+Line 401: "<div class=\"form-group\"><label>�������� *</label><input name=\"cat_name\" required placeholder=\"�����������\"></div>
+Line 402: "<div class=\"form-group\"><label>URL ��ʶ *</label><input name=\"cat_slug\" required placeholder=\"��action\"></div>" +
+Line 405: "<div class=\"modal-footer\"><button class=\"btn btn-outline cat-modal-cancel\">ȡ��</button><button class=\"btn btn-prim
+Line 418: } catch (e) { container.innerHTML = "<div class=\"empty-state\"><p>����ʧ��</p></div>"; }
+Line 423: if (cats.length === 0) { container.innerHTML = "<div class=\"empty-state\"><p>���޷��࣬�������ӷ��ࡹ��ʼ/p></div>"; return; }
+Line 424: var html = "<table><thead><tr><th>ID</th><th>��������</th><th>URL ��ʶ</th><th>��Ϸ����</th><th>����</th></tr></thead><tbo
+Line 427: "<td><button class=\"btn btn-sm btn-outline cat-edit-btn\" data-id=\"" + c.id + "\">�༭</button> " +
+Line 428: "<button class=\"btn btn-sm btn-danger cat-delete-btn\" data-id=\"" + c.id + "\" data-name=\"" + escHtml(c.name) + "\">ɾ
+Line 437: $(".category-modal .modal-header h3").textContent = "��ӷ���";
+Line 453: $(".category-modal .modal-header h3").textContent = "�༭����";
+Line 459: if (confirm("ȷ��ɾ�����ࡸ" + name + "����")) {
+Line 462: else { alert("ɾ��ʧ��: " + (data.detail || data.message)); }
+Line 463: }).catch(function(e) { alert("����ʧ��: " + e.message); });
+Line 473: if (!name || !slug) { alert("����д�������ƺ� URL ��ʶ"); return; }
+Line 480: if (data.code === 0) { alert(id ? "���³ɹ�" : "�����ɹ�"); $(".category-modal").classList.remove("active"); await loadCate
+Line 481: else { alert("����ʧ��: " + (data.detail || data.message)); }
+Line 482: } catch (e) { alert("����ʧ��: " + e.message); }
+Line 489: function drStatusLabel(s) { var m = { pending: "�����", active: "����", disabled: "�ѽ���", invalid: "��ʧЧ" }; return m[s
+Line 494: '<div class="panel-header"><h3>������Դ����</h3><button class="btn btn-primary" id="add-resource-btn">+ ������Դ</button><
+Line 496: '<input type="text" class="search-input" id="dr-keyword" placeholder="������Ϸ����...">' +
+Line 497: '<select id="dr-provider-filter"><option value="">ȫ������</option><option value="baidu">�ٶ�����</option><option value="q
+Line 498: '<select id="dr-status-filter"><option value="">ȫ��״̬</option><option value="pending">�����</option><option value="activ
+Line 501: '<div class="panel-body"><div class="resource-table-container"><p style="padding:20px;color:#888;">������...</p></div></
+Line 507: '<div class="modal-header"><h3>�༭��Դ</h3><button class="modal-close-btn res-modal-close">&times;</button></div>' +
+Line 509: '<div class="form-group"><label>��Ϸ *</label>' +
+Line 511: '<input id="res-game-search" placeholder="������Ϸ����..." autocomplete="off"><span id="res-game-title" style="display:no
+Line 514: '<div class="form-row"><div class="form-group"><label>���� *</label>' +
+Line 515: '<select name="provider" id="res-provider"><option value="baidu">�ٶ�����</option><option value="quark">�������</option><
+Line 517: '<select name="status" id="res-status"><option value="pending">�����</option><option value="active" selected>����</optio
+Line 518: '<div class="form-group"><label>��Դ����</label><input name="title" id="res-title" placeholder="�磺��Ϸ����v1.2"></div>' +
+Line 519: '<div class="form-row"><div class="form-group"><label>ԭʼURL</label><input name="origin_url" id="res-origin-url" placehol
+Line 520: '<div class="form-group"><label>�ҵķ���</label><input name="my_share_url" id="res-my-share-url" placeholder="�ҵ����̷�����
+Line 521: '<div class="form-row"><div class="form-group"><label>��ȡ��</label><input name="extract_code" id="res-extract-code" plac
+Line 522: '<div class="form-group"><label>��ʾ����</label><input name="display_order" id="res-display-order" type="number" value="0
+Line 523: '<div class="form-group"><label>��ע</label><textarea name="remark" id="res-remark" rows="3" placeholder="��ע��Ϣ..."></te
+Line 527: '<div class="modal-footer"><button class="btn btn-outline res-modal-cancel">ȡ��</button><button class="btn btn-primary r
+Line 550: if (info) info.textContent = "�� " + total + " ��";
+Line 553: container.innerHTML = '<div class="empty-state"><p>����������Դ��������Ͻ�����</p></div>';
+Line 579: var phtml = '<button' + (s.page <= 1 ? ' disabled' : '') + ' data-page="' + (s.page - 1) + '">��һҳ</button>';
+Line 585: phtml += '<button' + (s.page >= totalPages ? ' disabled' : '') + ' data-page="' + (s.page + 1) + '">��һҳ</button>';
+Line 586: phtml += '<span class="page-info">��' + s.page + '/' + totalPages + ' ҳ</span>';
+Line 596: if (e.message.indexOf("��ȡ") === -1) container.innerHTML = '<div class="empty-state"><p>����ʧ�ܣ����Ժ�����</p></div>';
+Line 633: if (confirm("ȷ��ɾ��������Դ " + title + "�𣿴˲������ɻָ���")) deleteResource(parseInt(id));
+Line 677: if (games.length === 0) html = '<div class="game-option" style="color:#888;">δ�ҵ�ƥ����Ϸ</div>';
+Line 691: } catch (e) { dd.innerHTML = '<div class="game-option" style="color:#c62828;">����ʧ��</div>'; dd.classList.add("active")
+Line 736: document.querySelector(".resource-modal .modal-header h3").textContent = "������Դ";
+Line 754: if (data.code !== 0) { alert("��ȡ��Դʧ��"); return; }
+Line 757: document.querySelector(".resource-modal .modal-header h3").textContent = "�༭��Դ";
+Line 773: } catch (e) { alert("����ʧ��: " + e.message); }
+Line 799: if (!gameId) { alert("��ѡ����Ϸ"); return; }
+Line 820: alert(id ? "���³ɹ�" : "�����ɹ�");
+Line 824: alert("����ʧ��: " + (data.detail || data.message || "δ֪����"));
+Line 826: } catch (e) { alert("����ʧ��: " + e.message); }
+Line 834: else { alert("ɾ��ʧ��: " + (data.detail || data.message)); }
+Line 835: } catch (e) { alert("ɾ��ʧ��: " + e.message); }
+Line 838: "<div class=\"panel\"><div class=\"panel-header\"><h3>ϵͳ����</h3></div><div class=\"panel-body\" style=\"padding:20px;\"
+Line 839: "<div class=\"form-group\"><label>վ������</label><input value=\"С����Ϸ��Դվ\" disabled></div>" +
+Line 840: "<div class=\"form-group\"><label>API �汾</label><input value=\"v1.0.0\" disabled></div>" +
+Line 841: "<div class=\"form-group\"><label>���ݿ�����/label><input value=\"SQLite�����л� MySQL/PostgreSQL��\" disabled></div>" +
+Line 842: "<div class=\"form-group\"><label>�ɼ�����״̬/label><input value=\"δ���ã�Ԥ��ӿ��Ѿ�����\" disabled></div>" +
+Line 843: "<div class=\"form-group\"><label>��Դ��ת״̬/label><input value=\"δ���ã�Ԥ��ӿ��Ѿ�����\" disabled></div>" +
+Line 844: "<div class=\"form-group\"><label>AI ����״̬/label><input value=\"δ���ã�Ԥ��ӿ��Ѿ�����\" disabled></div>" +
+Line 845: "<p style=\"font-size:0.8rem;color:#888;margin-top:16px;\">��������Ϊֻ��չʾ��������ͨ�������ļ��򻷾����������޸ġ�/p>" +
+Line 1023: "<h3>" + menu.label + " - ���ܿ�����</h3>" +
+Line 1024: "<p>��ģ��ΪԤ����ܣ����ں����汾��ʵ�֡�/p>" +
+Line 1025: "<p style=\"font-size:0.8rem;color:#bbb;margin-top:8px;\">��� API �ӿ���Ԥ�����ֱ�ӶԽ��ⲿ����/p></div>";

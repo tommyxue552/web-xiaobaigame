@@ -1,0 +1,57 @@
+[
+  {
+    "test": "01 Homepage /",
+    "status": "PASS",
+    "detail": "HTTP 200, 14 game-like elements found"
+  },
+  {
+    "test": "02 /games Page",
+    "status": "PASS",
+    "detail": "HTTP 200, page content: 5273 chars"
+  },
+  {
+    "test": "03 /game/1 Detail",
+    "status": "PASS",
+    "detail": "HTTP 200, page content: 9554 chars"
+  },
+  {
+    "test": "04 /admin Redirect",
+    "status": "PASS",
+    "detail": "Redirected to http://localhost:8000/admin/login"
+  },
+  {
+    "test": "05 /admin/login Page",
+    "status": "PASS",
+    "detail": "Login form found with username, password, and button"
+  },
+  {
+    "test": "06 Admin Login Flow",
+    "status": "PASS",
+    "detail": "Dashboard rendered, token stored: no"
+  },
+  {
+    "test": "07 Admin Dashboard Sidebar",
+    "status": "FAIL",
+    "detail": "No sidebar navigation found"
+  },
+  {
+    "test": "08 Network Errors",
+    "status": "PASS",
+    "detail": "No 404 or 500 on critical endpoints"
+  },
+  {
+    "test": "09 Admin API Auth (no token)",
+    "status": "PASS",
+    "detail": "Returns 401 without auth"
+  },
+  {
+    "test": "09 Admin API Auth (with token)",
+    "status": "PASS",
+    "detail": "Returns 200 with valid token"
+  },
+  {
+    "test": "10 JS Console Zero Error",
+    "status": "PASS",
+    "detail": "No JS errors across all frontend pages"
+  }
+]

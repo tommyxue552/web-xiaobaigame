@@ -1,0 +1,24 @@
+Line content: '                ""<div class=\\"stats-grid\\">" +\n'
+Hex: 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 22 22 3c 64 69 76 20 63 6c 61 73 73 3d 5c 22 73 74 61 74 73 2d 67 72 69 64 5c 22 3e 22 20 2b 0a
+
+Line 125:             var publishRate = stats.total_games > 0 ? Math.round(stats.published_games / stats.total_games * 100) : 0;
+
+Line 126:             body.innerHTML =
+
+Line 127:                 ""<div class=\"stats-grid\">" +
+
+Line 128:                 "<div class=\"stat-card stat-total\"><div class=\"stat-icon\">&#x1F3AE;</div><div class=\"stat-info\"><div class=\"stat-label\">��Ϸ����</div><div class=\"stat-value\">" + stats.total_games + "</div><div class=\"stat-sub\">ȫ����Ϸ��Դ</div></div></div>" +
+
+Line 129:                 "<div class=\"stat-card stat-published\"><div class=\"stat-icon\">&#x2705;</div><div class=\"stat-info\"><div class=\"stat-label\">�ѷ���</div><div class=\"stat-value\">" + stats.published_games + "</div><div class=\"stat-sub\">������ " + publishRate + "%</div></div></div>" +
+
+Line 130:                 "<div class=\"stat-card stat-draft\"><div class=\"stat-icon\">&#x1F4DD;</div><div class=\"stat-info\"><div class=\"stat-label\">�ݸ�</div><div class=\"stat-value\">" + stats.draft_games + "</div><div class=\"stat-sub\">���༭����</div></div></div>" +
+
+Line 131:                 "<div class=\"stat-card stat-category\"><div class=\"stat-icon\">&#x1F4C2;</div><div class=\"stat-info\"><div class=\"stat-label\">��������</div><div class=\"stat-value\">" + stats.category_count + "</div><div class=\"stat-sub\">��Ϸ����</div></div></div>" +
+
+Line 132:                 "</div>" +
+
+Line 133:                 "class=\"panel\">" +
+
+Line 134:                 "<div class=\"panel-header\"><h3>�����ӵ���Ϸ</h3></div>" +
+
+Line 135:                 "<ul class=\"recent-list\">" +

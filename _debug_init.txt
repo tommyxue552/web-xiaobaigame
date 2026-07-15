@@ -1,0 +1,17 @@
+async function init() {
+        var authed = await checkAuth();
+        if (!authed) return;
+
+        var userEl = document.querySelector(".header-user");
+        if (userEl) userEl.textContent = getUsername();
+
+        initSidebar();
+        renderPage(state.currentMenu);
+
+        // ��� URL hash ָ����ҳ��        var hash = window.location.hash.replace("#", "");
+        if (hash && MENUS.some(function(m) { return m.id === hash; })) {
+            switchMenu(hash);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", init);

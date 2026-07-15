@@ -1,30 +1,30 @@
-<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理员登录 - 小白游戏资源站</title>
+    <title>绠＄悊鍛樼櫥褰?- 灏忕櫧娓告垙璧勬簮绔?/title>
     <link rel="stylesheet" href="/admin-static/css/style.css">
 </head>
 <body class="login-page">
 
     <div class="login-container">
         <div class="login-header">
-            <div class="login-logo">小白<span>游戏</span></div>
-            <p class="login-subtitle">后台管理系统</p>
+            <div class="login-logo">灏忕櫧<span>娓告垙</span></div>
+            <p class="login-subtitle">鍚庡彴绠＄悊绯荤粺</p>
         </div>
 
         <form class="login-form" id="login-form">
             <div class="form-group">
-                <label for="username">用户名</label>
-                <input type="text" id="username" name="username" placeholder="请输入管理员用户名" autocomplete="username" required autofocus>
+                <label for="username">鐢ㄦ埛鍚?/label>
+                <input type="text" id="username" name="username" placeholder="璇疯緭鍏ョ鐞嗗憳鐢ㄦ埛鍚? autocomplete="username" required autofocus>
             </div>
             <div class="form-group">
-                <label for="password">密码</label>
-                <input type="password" id="password" name="password" placeholder="请输入密码" autocomplete="current-password" required>
+                <label for="password">瀵嗙爜</label>
+                <input type="password" id="password" name="password" placeholder="璇疯緭鍏ュ瘑鐮? autocomplete="current-password" required>
             </div>
             <div class="login-error" id="login-error" style="display:none;"></div>
-            <button type="submit" class="btn btn-primary login-btn" id="login-btn">登 录</button>
+            <button type="submit" class="btn btn-primary login-btn" id="login-btn">鐧?褰?/button>
         </form>
     </div>
 
@@ -43,12 +43,12 @@
             const password = document.getElementById("password").value;
 
             if (!username || !password) {
-                showError("请输入用户名和密码");
+                showError("璇疯緭鍏ョ敤鎴峰悕鍜屽瘑鐮?);
                 return;
             }
 
             btn.disabled = true;
-            btn.textContent = "登录中...";
+            btn.textContent = "鐧诲綍涓?..";
             errorEl.style.display = "none";
 
             try {
@@ -66,13 +66,13 @@
                     document.cookie = "admin_token=" + data.data.token + "; path=/; max-age=28800; SameSite=Lax";
                     window.location.href = "/admin";
                 } else {
-                    showError(data.detail || data.message || "登录失败");
+                    showError(data.detail || data.message || "鐧诲綍澶辫触");
                 }
             } catch (err) {
-                showError("网络错误，请检查后端服务是否启动");
+                showError("缃戠粶閿欒锛岃妫€鏌ュ悗绔湇鍔℃槸鍚﹀惎鍔?);
             } finally {
                 btn.disabled = false;
-                btn.textContent = "登 录";
+                btn.textContent = "鐧?褰?;
             }
         });
 
@@ -81,9 +81,13 @@
             errorEl.style.display = "block";
         }
 
-        // 登录页不自动跳转，由后端 /admin/login 路由处理认证重定向
+        // 濡傛灉宸茬粡鐧诲綍锛岀洿鎺ヨ烦杞?
+        if (localStorage.getItem("admin_token")) {
+            window.location.href = "/admin";
+        }
     })();
     </script>
 
 </body>
 </html>
+

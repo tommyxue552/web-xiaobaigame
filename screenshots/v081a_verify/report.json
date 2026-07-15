@@ -1,0 +1,85 @@
+{
+  "time": "2026-07-15T21:20:13.696408",
+  "total": 15,
+  "passed": 14,
+  "failed": 1,
+  "tests": [
+    {
+      "name": "01 Homepage /",
+      "passed": false,
+      "errors": [
+        "'gbk' codec can't encode character '\\u20ac' in position 89: illegal multibyte sequence"
+      ]
+    },
+    {
+      "name": "02 /games Page",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "03 /game/1 Detail",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "04 API /api/games",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "05 API /api/categories",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "06 /admin Redirect",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "07 /admin/login Page",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "08 Admin Login Flow",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "09 Admin Dashboard Renders",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "10 Admin Stats API",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "11 Admin Games CRUD",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "12 Admin Categories",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "13 Admin Tags",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "14 Admin Download APIs",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "15 Auth Required (401)",
+      "passed": true,
+      "errors": []
+    }
+  ]
+}
