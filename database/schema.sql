@@ -103,6 +103,11 @@ CREATE TABLE IF NOT EXISTS download_resources (
     extract_code    VARCHAR(20)     DEFAULT ''                , -- 提取码
     remark          TEXT            DEFAULT ''                , -- 备注
     display_order   INTEGER         DEFAULT 0                   , -- 显示排序
+    priority        INTEGER         NOT NULL DEFAULT 100       , -- 下载优先级(越大越优先)
+    is_primary      BOOLEAN         NOT NULL DEFAULT 0         , -- 是否默认资源
+    success_count   INTEGER         NOT NULL DEFAULT 0         , -- 成功跳转次数
+    fail_count      INTEGER         NOT NULL DEFAULT 0         , -- 失败次数
+    last_check_at   DATETIME        NULL                        , -- 最后检查时间
     status          VARCHAR(20)     DEFAULT 'active'          , -- pending/active/disabled/invalid
     created_at      DATETIME        DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME        DEFAULT CURRENT_TIMESTAMP
@@ -111,6 +116,8 @@ CREATE TABLE IF NOT EXISTS download_resources (
 CREATE INDEX IF NOT EXISTS idx_dr_game_id   ON download_resources(game_id);
 CREATE INDEX IF NOT EXISTS idx_dr_provider  ON download_resources(provider);
 CREATE INDEX IF NOT EXISTS idx_dr_status    ON download_resources(status);
+CREATE INDEX IF NOT EXISTS idx_dr_priority  ON download_resources(priority);
+CREATE INDEX IF NOT EXISTS idx_dr_primary   ON download_resources(is_primary);
 
 -- -----------------------------------------------------------
 -- 下载渠道表

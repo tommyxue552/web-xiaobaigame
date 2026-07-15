@@ -5,8 +5,9 @@ download_resources 表 - 存储游戏的下载资源信息。
 支持多网盘，每个游戏可以有多个下载资源。
 展示时优先使用 my_share_url。
 provider_id 关联 download_providers 表。
+模块7.8: 新增 priority/is_primary/success_count/fail_count/last_check_at 字段
 """
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Index
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from ..core.database import Base
@@ -46,6 +47,21 @@ class DownloadResource(Base):
     display_order = Column(
         Integer, default=0, comment="显示排序，数字越小越靠前"
     )
+    priority = Column(
+        Integer, nullable=False, default=100, comment="下载优先级（越大越优先）"
+    )
+    is_primary = Column(
+        Boolean, nullable=False, default=False, comment="是否默认资源（每游戏最多一个）"
+    )
+    success_count = Column(
+        Integer, nullable=False, default=0, comment="成功跳转次数"
+    )
+    fail_count = Column(
+        Integer, nullable=False, default=0, comment="失败次数"
+    )
+    last_check_at = Column(
+        DateTime, nullable=True, comment="最后检查时间"
+    )
     status = Column(
         String(20),
         default="active",
@@ -71,7 +87,9 @@ class DownloadResource(Base):
         Index("idx_dr_provider", "provider"),
         Index("idx_dr_provider_id", "provider_id"),
         Index("idx_dr_status", "status"),
+        Index("idx_dr_priority", "priority"),
+        Index("idx_dr_primary", "is_primary"),
     )
 
     def __repr__(self):
-        return f"<DownloadResource(id={self.id}, game_id={self.game_id}, provider={self.provider!r})>"
+        return f"<DownloadResource(id={self.id}, game_id={self.game_id}, provider={self.provider!r}, priority={self.priority})>"

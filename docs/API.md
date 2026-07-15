@@ -154,6 +154,35 @@
 
 ---
 
+### GET /api/game/{id}/download
+
+获取游戏最优下载资源（模块7.8）。按 priority DESC 自动选择，返回第一条 active 资源。
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| id | int (path) | 游戏ID |
+
+**响应**：
+```json
+{
+    "code": 0,
+    "message": "success",
+    "data": {
+        "resource_id": 1,
+        "provider": "quark",
+        "provider_name": "夸克网盘",
+        "url": "https://pan.quark.cn/s/xxx",
+        "priority": 100,
+        "extract_code": "abcd",
+        "title": "v1.2 绿色版"
+    }
+}
+```
+
+**错误** (404): `{"detail": "游戏不存在或未发布"}` 或 `{"detail": "该游戏暂无可用下载资源"}`
+
+---
+
 ### GET /api/qrcode/{game_id}
 
 生成游戏下载二维码（PNG 图片）。
@@ -533,6 +562,8 @@ Token 短链接（二维码编码目标）。
 | PUT | `/api/admin/download-resources/{id}` | 更新资源 |
 | DELETE | `/api/admin/download-resources/{id}` | 删除资源 |
 | GET | `/api/admin/download-resources-games` | 游戏下拉列表（供选择用） |
+| PUT | `/api/admin/download-resource/{id}/priority` | 修改资源优先级（模块7.8） |
+| PUT | `/api/admin/download-resource/{id}/primary` | 设置/取消默认资源（模块7.8） |
 
 **列表查询参数**：
 
@@ -561,6 +592,25 @@ Token 短链接（二维码编码目标）。
     "status": "active"
 }
 ```
+
+**PUT priority 请求体**：
+```json
+{
+    "priority": 100
+}
+```
+
+**PUT primary 请求体**：
+```json
+{
+    "is_primary": true
+}
+```
+- 设为 `true` 时自动取消同游戏其它资源的 primary 标记
+- 每个游戏最多一个 `is_primary=true` 的资源
+
+---
+
 
 ---
 

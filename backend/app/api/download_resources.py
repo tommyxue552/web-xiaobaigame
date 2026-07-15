@@ -53,6 +53,14 @@ class DownloadResourceUpdate(BaseModel):
     status: Optional[str] = Field(None, max_length=20, description="状态")
 
 
+class DownloadPriorityUpdate(BaseModel):
+    priority: int = Field(..., ge=0, le=10000, description='优先级（越大越优先）')
+
+
+class DownloadPrimaryUpdate(BaseModel):
+    is_primary: bool = Field(..., description='是否设为默认资源')
+
+
 # ==================== Helpers ====================
 
 
@@ -109,6 +117,11 @@ def serialize_download_resource(dr: DownloadResource) -> dict:
         "extract_code": dr.extract_code,
         "remark": dr.remark,
         "display_order": dr.display_order,
+        "priority": dr.priority if dr.priority is not None else 100,
+        "is_primary": bool(dr.is_primary) if dr.is_primary is not None else False,
+        "success_count": dr.success_count if dr.success_count is not None else 0,
+        "fail_count": dr.fail_count if dr.fail_count is not None else 0,
+        "last_check_at": str(dr.last_check_at) if dr.last_check_at else None,
         "status": dr.status,
         "created_at": str(dr.created_at) if dr.created_at else None,
         "updated_at": str(dr.updated_at) if dr.updated_at else None,
@@ -161,7 +174,7 @@ async def list_download_resources(
     total = (await db.execute(count_query)).scalar() or 0
     offset = (page - 1) * page_size
     query = (
-        query.order_by(DownloadResource.display_order.asc())
+        query.order_by(DownloadResource.priority.desc())
         .order_by(DownloadResource.updated_at.desc())
         .offset(offset)
         .limit(page_size)
@@ -331,6 +344,79 @@ async def delete_download_resource(
 
     return {"code": 0, "message": "删除成功"}
 
+
+
+# ==================== 模块7.8: 优先级与默认资源管理 ====================
+
+@router.put(
+    "/download-resource/{resource_id}/priority",
+    summary="[后台] 修改下载资源优先级（模块7.8）",
+)
+async def update_resource_priority(
+    resource_id: int,
+    body: DownloadPriorityUpdate,
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(DownloadResource)
+        .options(joinedload(DownloadResource.game), joinedload(DownloadResource.provider_rel))
+        .where(DownloadResource.id == resource_id)
+    )
+    resource = result.unique().scalar_one_or_none()
+    if not resource:
+        raise HTTPException(status_code=404, detail="资源不存在")
+
+    resource.priority = body.priority
+    await db.flush()
+    await db.refresh(resource)
+
+    return {
+        "code": 0,
+        "message": "优先级已更新",
+        "data": serialize_download_resource(resource),
+    }
+
+
+@router.put(
+    "/download-resource/{resource_id}/primary",
+    summary="[后台] 设置/取消默认资源（模块7.8）",
+)
+async def update_resource_primary(
+    resource_id: int,
+    body: DownloadPrimaryUpdate,
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(DownloadResource)
+        .options(joinedload(DownloadResource.game), joinedload(DownloadResource.provider_rel))
+        .where(DownloadResource.id == resource_id)
+    )
+    resource = result.unique().scalar_one_or_none()
+    if not resource:
+        raise HTTPException(status_code=404, detail="资源不存在")
+
+    if body.is_primary:
+        # 自动取消同游戏其它资源的 primary 标记
+        await db.execute(
+            DownloadResource.__table__.update()
+            .where(
+                DownloadResource.game_id == resource.game_id,
+                DownloadResource.id != resource.id,
+            )
+            .values(is_primary=False)
+        )
+
+    resource.is_primary = body.is_primary
+    await db.flush()
+    await db.refresh(resource)
+
+    return {
+        "code": 0,
+        "message": "默认资源已更新",
+        "data": serialize_download_resource(resource),
+    }
 
 # ==================== Games list helper ====================
 

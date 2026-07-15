@@ -1,6 +1,6 @@
 ﻿# 模块开发状态
 
-## 当前版本: v0.7.7
+## 当前版本: v0.7.8
 
 ---
 
@@ -21,6 +21,7 @@
 | 模块7.5 | SEO 基础系统 | ✅ 完成 | 动态 SITE_URL、sitemap 分类+分页索引、SEO meta 修复 |
 | 模块7.6 | 下载统计系统 | ✅ 完成 |
 | 模块7.7 | 游戏标签(Tag)与标签SEO | ✅ 完成 | Tag管理、Tag页面、SEO、相关推荐 | 下载日志增强、统计 API、后台统计面板 |
+| 模块7.8 | 下载资源优先级与智能选择 | ✅ 完成 | 优先级排序、默认资源、故障切换、成功率统计 |
 | 模块9 | AI 运营 | 🔴 预留 | 接口已定义，返回 501 |
 | 模块10 | Docker 部署 | ✅ 完成 | Dockerfile + docker-compose.yml |
 
@@ -194,6 +195,36 @@
 - tags表 + game_tags多对多关联
 - JSON-LD、OpenGraph、Canonical等SEO元数据
 
+### 模块7.8: 下载资源优先级与智能选择系统
+
+**状态**: ✅ 完成
+
+**数据库**:
+- `download_resources` 表新增字段: `priority`（优先级）、`is_primary`（默认资源）、`success_count`（成功次数）、`fail_count`（失败次数）、`last_check_at`（最后检查时间）
+- 新增索引: `idx_dr_priority`、`idx_dr_primary`
+- 迁移文件: `database/migrations/007_08_download_priority.sql`
+
+**资源选择服务** (`backend/app/services/download_selector.py`):
+- `get_best_resource(game_id)` — 按 priority DESC 自动选择最优下载资源
+- `get_fallback_resource(game_id, current_id)` — 故障切换备选资源
+
+**公开接口** (`GET /api/game/{id}/download`):
+- 自动调用选择器返回最优资源，包含 resource_id、provider、provider_name、url、priority
+
+**后台 API**:
+- `PUT /api/admin/download-resource/{id}/priority` — 修改资源优先级
+- `PUT /api/admin/download-resource/{id}/primary` — 设置/取消默认资源（自动取消同游戏其它 primary）
+
+**下载统计增强**:
+- 下载成功跳转时 `success_count += 1`、记录 `last_check_at`
+- 预留 `fail_count` 递增接口供后续故障检测使用
+
+**后台管理**:
+- 下载资源列表新增优先级、默认、成功次数、失败次数字段
+- 优先级支持内联编辑（数字输入框）
+- 默认资源支持点击切换（自动唯一性约束）
+
+
 
 ## 预留模块
 
@@ -225,3 +256,4 @@
 | v0.7.5 | 2026-07-12 | SEO 基础系统（SITE_URL 配置化、sitemap 分类+分页、meta 标签修复） |
 | v0.7.6 | 2026-07-12 | 下载统计系统（日志增强、统计 API、后台统计面板） |
 | v0.7.7 | 2026-07-15 | 游戏标签(Tag)与标签SEO系统 |
+| v0.7.8 | 2026-07-15 | 下载资源优先级与智能选择系统 |

@@ -10,9 +10,12 @@ import io
 import qrcode
 from fastapi import APIRouter, Depends, Request, HTTPException
 from fastapi.responses import RedirectResponse, StreamingResponse, HTMLResponse
+from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..core.database import get_db
 from ..services import download_service
+from sqlalchemy import update
+from ..models.download_resource import DownloadResource
 
 router = APIRouter(tags=["Download"])
 
@@ -49,6 +52,38 @@ def _html_esc(s) -> str:
         .replace(">", "&gt;")
         .replace(chr(34), "&quot;")
     )
+
+
+
+from sqlalchemy.sql import func
+
+
+async def _increment_resource_success(db: AsyncSession, resource_id: int) -> None:
+    """??7.8: ??????? success_count ??? last_check_at"""
+    from sqlalchemy import update as sql_update
+    await db.execute(
+        sql_update(DownloadResource)
+        .where(DownloadResource.id == resource_id)
+        .values(
+            success_count=DownloadResource.success_count + 1,
+            last_check_at=datetime.utcnow(),
+        )
+    )
+    await db.flush()
+
+
+async def _increment_resource_fail(db: AsyncSession, resource_id: int) -> None:
+    """??7.8: ??????? fail_count ??? last_check_at"""
+    from sqlalchemy import update as sql_update
+    await db.execute(
+        sql_update(DownloadResource)
+        .where(DownloadResource.id == resource_id)
+        .values(
+            fail_count=DownloadResource.fail_count + 1,
+            last_check_at=datetime.utcnow(),
+        )
+    )
+    await db.flush()
 
 
 @router.get("/api/download/qr/{token_str}", summary="???????")
@@ -107,9 +142,11 @@ async def download_entry(
             raise HTTPException(status_code=404, detail="???????????")
 
         await download_service.log_download_action(
-            db, token_obj.token, resource_id, token_obj.game_id,
-            ip, user_agent, device_type, "redirect",
-        )
+        db, token_obj.token, resource_id, token_obj.game_id,
+        ip, user_agent, device_type, "redirect",
+    )
+        # 模块7.8: 记录成功跳转
+        await _increment_resource_success(db, resource_id)
 
         return RedirectResponse(info["share_url"], status_code=302)
 

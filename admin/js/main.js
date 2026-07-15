@@ -484,7 +484,7 @@
         // ==================== ������Դ���� ====================
     var downloadResourceState = { page: 1, pageSize: 20, keyword: "", provider: "", status: "", editingId: null };
 
-    function providerLabel(p) { var m = { baidu: "�ٶ�����", quark: "�������", alipan: "��������", "115": "115����" }; return m[p] || p; }
+    function providerLabel(p, label) { if (label) return label; var m = { baidu: "百度网盘", quark: "夸克网盘", alipan: "阿里云盘", "115": "115网盘", xunlei: "迅雷云盘", uc: "UC网盘", mobile: "中国移动云盘", tianyi: "天翼云盘" }; return m[p] || p; }
     function drStatusLabel(s) { var m = { pending: "�����", active: "����", disabled: "�ѽ���", invalid: "��ʧЧ" }; return m[s] || s; }
 
     function renderResourceManagement(body) {
@@ -551,22 +551,23 @@
             if (items.length === 0) {
                 container.innerHTML = '<div class="empty-state"><p>����������Դ��������Ͻ�����</p></div>';
             } else {
-                var html = '<table><thead><tr><th>ID</th><th>��Ϸ</th><th>����</th><th>����</th><th>״̬</th><th>��ȡ��</th><th>����</th><th>����ʱ��</th><th>����</th></tr></thead><tbody>';
+                var html = '<table><thead><tr><th>ID</th><th>游戏</th><th>网盘</th><th>资源</th><th>优先级</th><th>默认</th><th>成功</th><th>失败</th><th>状态</th><th>更新时间</th><th>操作</th></tr></thead><tbody>';
                 items.forEach(function(r) {
                     html += '<tr>' +
                         '<td>' + r.id + '</td>' +
                         '<td>' + escHtml(r.game_title || ("ID:" + r.game_id)) + '</td>' +
-                        '<td><span class="provider-tag provider-' + r.provider + '">' + providerLabel(r.provider) + '</span></td>' +
+                        '<td><span class="provider-tag provider-' + (r.provider || "") + '">' + providerLabel(r.provider, r.provider_label) + '</span></td>' +
                         '<td>' + escHtml(r.title || "-") + '</td>' +
+                        '<td><input type="number" class="dr-priority-input" data-id="' + r.id + '" value="' + (r.priority != null ? r.priority : 100) + '" min="0" max="10000" style="width:60px;" title="修改优先级"></td>' +
+                        '<td>' + (r.is_primary ? '<span class="badge badge-active" style="cursor:pointer;" onclick="togglePrimary(' + r.id + ',false)" title="点击取消默认">是</span>' : '<span class="badge badge-disabled" style="cursor:pointer;" onclick="togglePrimary(' + r.id + ',true)" title="点击设为默认">否</span>') + '</td>' +
+                        '<td>' + (r.success_count || 0) + '</td>' +
+                        '<td>' + (r.fail_count || 0) + '</td>' +
                         '<td><span class="badge badge-' + r.status + '">' + drStatusLabel(r.status) + '</span></td>' +
-                        '<td>' + escHtml(r.extract_code || "-") + '</td>' +
-                        '<td>' + (r.display_order != null ? r.display_order : 0) + '</td>' +
                         '<td>' + (r.updated_at || r.created_at || "").slice(0, 10) + '</td>' +
-                        '<td><button class="btn btn-sm btn-outline dr-edit-btn" data-id="' + r.id + '">�༭</button> ' +
-                        '<button class="btn btn-sm btn-danger dr-delete-btn" data-id="' + r.id + '" data-title="' + escHtml(r.provider + " - " + (r.game_title || "")) + '">ɾ��</button></td>' +
+                        '<td><button class="btn btn-sm btn-outline dr-edit-btn" data-id="' + r.id + '">编辑</button> ' +
+                        '<button class="btn btn-sm btn-danger dr-delete-btn" data-id="' + r.id + '" data-title="' + escHtml(r.provider + " - " + (r.game_title || "")) + '">删除</button></td>' +
                         '</tr>';
-                });
-                html += '</tbody></table>';
+                });html += '</tbody></table>';
                 container.innerHTML = html;
             }
 
@@ -689,7 +690,47 @@
         } catch (e) { dd.innerHTML = '<div class="game-option" style="color:#c62828;">����ʧ��</div>'; dd.classList.add("active"); }
     }
 
-    function openResourceModal() {
+    
+    // 模块7.8: 优先级内联编辑
+    (function() {
+        var tc = document.querySelector(".resource-table-container");
+        if (tc) {
+            tc.addEventListener("change", function(e) {
+                var input = e.target.closest(".dr-priority-input");
+                if (input) {
+                    var id = parseInt(input.dataset.id);
+                    var priority = parseInt(input.value);
+                    if (isNaN(priority) || priority < 0 || priority > 10000) {
+                        alert("优先级需在 0-10000 之间");
+                        return;
+                    }
+                    updateResourcePriority(id, priority);
+                }
+            });
+        }
+    })();
+
+    // Expose togglePrimary globally
+    window.togglePrimary = async function(resourceId, isPrimary) {
+        try {
+            var res = await apiFetch("/api/admin/download-resource/" + resourceId + "/primary", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ is_primary: isPrimary })
+            });
+            var data = await res.json();
+            if (data.code === 0) {
+                loadDownloadResources();
+            } else {
+                alert(data.message || "操作失败");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("网络错误");
+        }
+    };
+
+function openResourceModal() {
         downloadResourceState.editingId = null;
         document.querySelector(".resource-modal .modal-header h3").textContent = "������Դ";
         document.getElementById("resource-form").reset();
@@ -731,7 +772,23 @@
         } catch (e) { alert("����ʧ��: " + e.message); }
     }
 
-    function closeResourceModal() {
+    async function updateResourcePriority(resourceId, priority) {
+    try {
+        var res = await apiFetch("/api/admin/download-resource/" + resourceId + "/priority", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ priority: priority })
+        });
+        var data = await res.json();
+        if (data.code !== 0) {
+            console.error("Priority update failed:", data.message);
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function closeResourceModal() {
         document.querySelector(".resource-modal").classList.remove("active");
         downloadResourceState.editingId = null;
     }

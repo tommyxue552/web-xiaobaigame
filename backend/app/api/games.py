@@ -15,6 +15,7 @@ from ..core.config import settings
 from ..models.game import Game
 from ..models.category import Category
 from ..models.download_resource import DownloadResource
+from ..services import download_selector
 from ..models.download_provider import DownloadProvider
 from ..models.tag import Tag
 from ..models.game_tag import GameTag
@@ -1074,6 +1075,25 @@ def _render_download_page(game_id: int, title: str, download_url: str) -> str:
 </body>
 </html>'''
 
+
+# ==================== ??7.8: ???????? ====================
+
+@router.get("/api/game/{game_id}/download", summary="??????????")
+async def get_best_game_download(
+    game_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    """????????????????? priority DESC ???????? active ???"""
+    best = await download_selector.get_best_resource(db, game_id)
+    if not best:
+        raise HTTPException(status_code=404, detail="???????????")
+    return {
+        "code": 0,
+        "message": "success",
+        "data": best,
+    }
+
+
 async def _get_game_downloads(db: AsyncSession, game_id: int) -> list:
     result = await db.execute(
         select(DownloadResource)
@@ -1081,7 +1101,7 @@ async def _get_game_downloads(db: AsyncSession, game_id: int) -> list:
             DownloadResource.game_id == game_id,
             DownloadResource.status.in_(["active", "pending"]),
         )
-        .order_by(DownloadResource.display_order.asc(), DownloadResource.id.asc())
+        .order_by(DownloadResource.priority.desc(), DownloadResource.display_order.asc(), DownloadResource.id.asc())
     )
     resources = result.scalars().all()
     items = []
@@ -1098,6 +1118,10 @@ async def _get_game_downloads(db: AsyncSession, game_id: int) -> list:
             "title": r.title or "",
             "extract_code": r.extract_code or "",
             "display_order": r.display_order,
+            "priority": r.priority if r.priority is not None else 100,
+            "is_primary": bool(r.is_primary) if r.is_primary is not None else False,
+            "success_count": r.success_count if r.success_count is not None else 0,
+            "fail_count": r.fail_count if r.fail_count is not None else 0,
         })
     return items
 

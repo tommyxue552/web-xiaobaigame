@@ -167,11 +167,16 @@
 | extract_code | VARCHAR(20) | DEFAULT " | 提取码 |
 | remark | TEXT | DEFAULT " | 备注 |
 | display_order | INTEGER | DEFAULT 0 | 显示排序 |
+| priority | INTEGER | NOT NULL, DEFAULT 100 | 下载优先级（越大越优先） |
+| is_primary | BOOLEAN | NOT NULL, DEFAULT 0 | 是否默认资源 |
+| success_count | INTEGER | NOT NULL, DEFAULT 0 | 成功跳转次数 |
+| fail_count | INTEGER | NOT NULL, DEFAULT 0 | 失败次数 |
+| last_check_at | DATETIME | NULL | 最后检查时间 |
 | status | VARCHAR(20) | DEFAULT "active" | pending / active / disabled / invalid |
 | created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 创建时间 |
 | updated_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 更新时间 |
 
-**索引**: game_id, provider, provider_id, status
+**索引**: game_id, provider, provider_id, status, priority, is_primary
 
 ---
 
@@ -301,4 +306,5 @@
 |------|------|
 | `migrations/007_04_download_tokens.sql` | 下载 Token 表创建 |
 | `migrations/007_07_tags.sql` | 标签表和游戏标签关联表创建 |
+| `migrations/007_08_download_priority.sql` | 下载资源优先级字段和索引新增 |
 | `migrations/007_04_01_download_tokens_constraint.sql` | Token 唯一约束更新 |

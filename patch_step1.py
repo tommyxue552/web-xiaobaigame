@@ -1,1 +1,0 @@
-import sys,os; sys.stdout.reconfigure(encoding='utf-8'); print('Step 1: reading main.js')
