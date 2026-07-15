@@ -1,6 +1,6 @@
 ﻿# 模块开发状态
 
-## 当前版本: v0.7.6
+## 当前版本: v0.7.7
 
 ---
 
@@ -19,7 +19,8 @@
 | 模块7.3 | 前端下载展示 | ✅ 完成 | 游戏详情页多渠道按钮、下载二维码页 |
 | 模块7.4 | 下载控制器 | ✅ 完成 | Token 化下载、设备分流（PC/Mobile）、下载日志
 | 模块7.5 | SEO 基础系统 | ✅ 完成 | 动态 SITE_URL、sitemap 分类+分页索引、SEO meta 修复 |
-| 模块7.6 | 下载统计系统 | ✅ 完成 | 下载日志增强、统计 API、后台统计面板 |
+| 模块7.6 | 下载统计系统 | ✅ 完成 |
+| 模块7.7 | 游戏标签(Tag)与标签SEO | ✅ 完成 | Tag管理、Tag页面、SEO、相关推荐 | 下载日志增强、统计 API、后台统计面板 |
 | 模块9 | AI 运营 | 🔴 预留 | 接口已定义，返回 501 |
 | 模块10 | Docker 部署 | ✅ 完成 | Dockerfile + docker-compose.yml |
 
@@ -173,6 +174,26 @@
 - 错误页面渲染
 
 ---
+### 模块7.7: 游戏标签(Tag)与标签SEO系统
+
+**状态**: ✅ 完成
+
+- `GET /api/admin/tags` — [后台] 标签列表
+- `GET /api/admin/tags/active` — [后台] 启用标签下拉
+- `GET /api/admin/tags/{id}` — [后台] 标签详情
+- `POST /api/admin/tags` — [后台] 新增标签
+- `PUT /api/admin/tags/{id}` — [后台] 更新标签
+- `DELETE /api/admin/tags/{id}` — [后台] 删除标签
+- `GET /api/admin/game/{id}/tags` — [后台] 游戏标签ID
+- `PUT /api/admin/game/{id}/tags` — [后台] 更新标签关联
+- `GET /tag/{slug}` — 标签详情页(SSR+SEO)
+- 后台游戏编辑页标签多选
+- 标签页面分页
+- Sitemap 包含标签URL
+- 游戏详情页相关推荐(同Tag+同Category)
+- tags表 + game_tags多对多关联
+- JSON-LD、OpenGraph、Canonical等SEO元数据
+
 
 ## 预留模块
 
@@ -182,6 +203,7 @@
 | 模块9: AI 运营 | `POST /api/ai/generate` | 返回 501 Not Implemented |
 
 预留模块的接口路由已在 `main.py` 中注册，Schema 已在对应 `__init__.py` 中定义，返回统一的 501 响应格式。
+
 
 ---
 
@@ -202,3 +224,4 @@
 | v0.7.4 | 2026-07-12 | 下载控制器（Token + 设备分流 + 日志） |
 | v0.7.5 | 2026-07-12 | SEO 基础系统（SITE_URL 配置化、sitemap 分类+分页、meta 标签修复） |
 | v0.7.6 | 2026-07-12 | 下载统计系统（日志增强、统计 API、后台统计面板） |
+| v0.7.7 | 2026-07-15 | 游戏标签(Tag)与标签SEO系统 |

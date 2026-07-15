@@ -661,6 +661,67 @@ Token 短链接（二维码编码目标）。
 
 ---
 
+
+---
+
+## 八、标签管理 API（模块7.7）
+
+所有接口需要 Admin 认证。
+
+### GET /api/admin/tags
+
+[后台] 标签列表。
+
+**查询参数**：
+
+| 参数 | 类型 | 默认 | 说明 |
+|------|------|------|------|
+| keyword | string | "" | 名称搜索 |
+| is_active | bool | null | 启用状态筛选 |
+
+### GET /api/admin/tags/active
+
+[后台] 启用标签列表（轻量版，用于下拉选择）。
+
+### GET /api/admin/tags/{tag_id}
+
+[后台] 标签详情。
+
+### POST /api/admin/tags
+
+[后台] 新增标签。
+
+### PUT /api/admin/tags/{tag_id}
+
+[后台] 更新标签。
+
+### DELETE /api/admin/tags/{tag_id}
+
+[后台] 删除标签。
+
+### GET /api/admin/game/{game_id}/tags
+
+[后台] 获取游戏的标签ID列表。
+
+### PUT /api/admin/game/{game_id}/tags
+
+[后台] 更新游戏的标签关联。请求体为 tag_ids 数组。
+
+---
+
+## 九、标签公开页面（模块7.7）
+
+### GET /tag/{slug}
+
+标签详情页（SSR），无需认证。
+
+**功能**：
+- 标签介绍（name + description）
+- 关联游戏列表（分页，默认 12 条/页）
+- 面包屑导航
+- 完整 SEO：title、description、keywords、canonical、OpenGraph、JSON-LD
+- Sitemap 自动收录
+
 ## 六、预留接口
 
 以下接口已注册路由，返回 `501 Not Implemented`。

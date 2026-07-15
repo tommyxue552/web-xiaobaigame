@@ -193,3 +193,35 @@ CREATE INDEX IF NOT EXISTS idx_dl_game_id      ON download_logs(game_id);
 CREATE INDEX IF NOT EXISTS idx_dl_provider_id  ON download_logs(provider_id);
 CREATE INDEX IF NOT EXISTS idx_dl_created_action ON download_logs(created_at, action);
 
+
+-- -----------------------------------------------------------
+-- 游戏标签表（模块7.7）
+-- -----------------------------------------------------------
+CREATE TABLE IF NOT EXISTS tags (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    name            VARCHAR(100)     NOT NULL              , -- 标签名称
+    slug            VARCHAR(100)     NOT NULL UNIQUE       , -- URL友好标识
+    description     TEXT             DEFAULT ''            , -- 标签描述
+    seo_title       VARCHAR(255)     DEFAULT ''            , -- 自定义SEO标题
+    seo_description VARCHAR(500)     DEFAULT ''            , -- 自定义SEO描述
+    seo_keywords    VARCHAR(500)     DEFAULT ''            , -- 自定义SEO关键词
+    sort_order      INTEGER          DEFAULT 0             , -- 排序
+    is_active       BOOLEAN          DEFAULT 1             , -- 是否启用
+    created_at      DATETIME         DEFAULT CURRENT_TIMESTAMP,
+    updated_at      DATETIME         DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_tags_slug ON tags(slug);
+CREATE INDEX IF NOT EXISTS idx_tags_is_active ON tags(is_active);
+
+-- -----------------------------------------------------------
+-- 游戏-标签关联表（模块7.7）
+-- -----------------------------------------------------------
+CREATE TABLE IF NOT EXISTS game_tags (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    game_id         INTEGER         NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+    tag_id          INTEGER         NOT NULL REFERENCES tags(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_gt_game_id ON game_tags(game_id);
+CREATE INDEX IF NOT EXISTS idx_gt_tag_id ON game_tags(tag_id);

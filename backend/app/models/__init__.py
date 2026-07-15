@@ -7,6 +7,8 @@ from .download_resource import DownloadResource
 from .download_provider import DownloadProvider
 from .download_token import DownloadToken
 from .download_log import DownloadLog
+from .tag import Tag
+from .game_tag import GameTag
 
 __all__ = [
     "Game",
@@ -16,4 +18,6 @@ __all__ = [
     "DownloadProvider",
     "DownloadToken",
     "DownloadLog",
+    "Tag",
+    "GameTag",
 ]

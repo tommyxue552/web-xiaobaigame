@@ -43,16 +43,17 @@
 
     // ==================== �������� ====================
     var MENUS = [
-        { id: "dashboard", label: "�Ǳ���", icon: "\u25A0" },
-        { id: "games", label: "��Ϸ����", icon: "\u25B6" },
-        { id: "categories", label: "�������", icon: "\u25CB" },
-        { id: "resources", label: "������Դ", icon: "\u2193" },
-        { id: "crawler", label: "�ɼ�����", icon: "\u21C4", hidden: true },
-        { id: "transfer", label: "��Դ��ת", icon: "\u21C5", hidden: true },
-        { id: "ai", label: "AI����", icon: "\u2699", hidden: true },
-        { id: "settings", label: "ϵͳ����", icon: "\u2630" },
+        { id: "dashboard", label: "仪表盘", icon: "\u25A0" },
+        { id: "games", label: "游戏管理", icon: "\u25B6" },
+        { id: "categories", label: "分类管理", icon: "\u25CB" },
+        { id: "resources", label: "下载资源", icon: "\u2193" },
+        { id: "tags", label: "标签管理", icon: "\u2605" },
+        { id: "dlstats", label: "下载统计", icon: "\u21C5" },
+        { id: "crawler", label: "采集管理", icon: "\u21C4", hidden: true },
+        { id: "transfer", label: "资源中转", icon: "\u21C5", hidden: true },
+        { id: "ai", label: "AI助手", icon: "\u2699", hidden: true },
+        { id: "settings", label: "系统设置", icon: "\u2630" },
     ];
-
     // ==================== ״̬====================
     var state = {
         currentMenu: "dashboard",
@@ -108,7 +109,7 @@
         case "games": renderGameManagement(body); break;
         case "categories": renderCategoryManagement(body); break;
         case "resources": renderResourceManagement(body); break;
-        case "dlstats": renderDownloadStats(body); break;`n        case "settings": renderSettings(body); break;
+    case "dlstats": renderDownloadStats(body); break;`n        case "tags": renderTagManagement(body); break;`n        case "settings": renderSettings(body); break;
         default: renderPlaceholder(body, MENUS.find(function(m){return m.id===menuId;})); break;
         }
     }
@@ -191,7 +192,7 @@
             "<div class=\"form-group\"><label>������</label><input name=\"developer\"></div></div>" +
             "<div class=\"form-row\"><div class=\"form-group\"><label>��������</label><input name=\"release_date\" type=\"date\"></div>" +
             "<div class=\"form-group\"><label>����״̬/label><select name=\"publish_status\"><option value=\"draft\">�ݸ�</option><option value=\"published\">�ѷ���/option><option value=\"hidden\">����</option></select></div></div>" +
-            "<div class=\"form-group\"><label>��ǩ�����ŷָ��/label><input name=\"tags_str\" placeholder=\"����, ����, ����\"></div>" +
+            "<div class=\"form-group\"><label>标签</label><div id=\"tag-checkboxes\" class=\"tag-checkboxes\" style=\"display:flex;flex-wrap:wrap;gap:8px;padding:8px;border:1px solid #333;border-radius:4px;min-height:36px;max-height:150px;overflow-y:auto;\"><span style=\"color:#888;\">加载中...</span></div></div>" +
             "<div class=\"form-row\"><div class=\"form-group\"><label>��������</label><input name=\"download_url\" placeholder=\"https://...\"></div>" +
             "<div class=\"form-group\"><label>ԭʼ��Դ URL</label><input name=\"original_url\" placeholder=\"https://...\"></div></div>" +
             "<div class=\"form-row\"><div class=\"form-group\"><label>��ת״̬/label><select name=\"transfer_status\"><option value=\"pending\">����ת/option><option value=\"transferring\">��ת��/option><option value=\"completed\">�����/option><option value=\"failed\">ʧ��</option></select></div>" +
@@ -290,6 +291,7 @@
             $(".game-modal .modal-header h3").textContent = "�����Ϸ";
             $(".game-modal").classList.add("active");
             loadCategoriesForSelects();
+            loadTagCheckboxes();
         });
         $(".modal-close-btn")?.addEventListener("click", closeGameModal);
         $(".modal-cancel-btn")?.addEventListener("click", closeGameModal);
@@ -319,7 +321,7 @@
         var form = $("#game-form");
         var fd = new FormData(form);
         var id = fd.get("id");
-        var ts = (fd.get("tags_str") || "").split(",").map(function(t) { return t.trim(); }).filter(Boolean);
+        var tagIds = []; var cbs = document.querySelectorAll("#game-form input[name=tag_ids]:checked"); cbs.forEach(function(cb) { tagIds.push(parseInt(cb.value)); });
         var payload = {
             title: fd.get("title"), slug: fd.get("slug"), cover: fd.get("cover") || "",
             images: [], description: fd.get("description") || "",
@@ -327,7 +329,7 @@
             size: fd.get("size") || "", version: fd.get("version") || "",
             publisher: fd.get("publisher") || "", developer: fd.get("developer") || "",
             release_date: fd.get("release_date") || null,
-            category: fd.get("category") || "", tags: ts,
+            category: fd.get("category") || "", tag_ids: tagIds,
             download_url: fd.get("download_url") || "", original_url: fd.get("original_url") || "",
             transfer_status: fd.get("transfer_status") || "pending",
             crawler_source: fd.get("crawler_source") || "",
@@ -362,8 +364,7 @@
         form.querySelector("[name=developer]").value = game.developer;
         form.querySelector("[name=release_date]").value = game.release_date || "";
         form.querySelector("[name=publish_status]").value = game.publish_status;
-        form.querySelector("[name=tags_str]").value = (game.tags || []).join(", ");
-        form.querySelector("[name=download_url]").value = game.download_url;
+        loadTagCheckboxes(game.tag_ids || []);        form.querySelector("[name=download_url]").value = game.download_url;
         form.querySelector("[name=original_url]").value = game.original_url;
         form.querySelector("[name=transfer_status]").value = game.transfer_status || "pending";
         form.querySelector("[name=crawler_source]").value = game.crawler_source || "";
@@ -788,6 +789,175 @@
     }
 
     // ==================== ռλҳ�� ====================
+
+    // ==================== 标签管理 ====================
+            async function loadTagCheckboxes(selectedTagIds) {
+        var container = document.getElementById("tag-checkboxes");
+        if (!container) return;
+        selectedTagIds = selectedTagIds || [];
+        try {
+            var res = await apiFetch("/api/admin/tags/active");
+            var data = await res.json();
+            if (data.code !== 0) { container.innerHTML = "<span style=\"color:#888;\">加载失败</span>"; return; }
+            var tags = data.data;
+            container.innerHTML = tags.map(function(t) {
+                var checked = selectedTagIds.indexOf(t.id) !== -1 ? " checked" : "";
+                return "<label><input type=\"checkbox\" name=\"tag_ids\" value=\"" + t.id + "\"" + checked + "> " + escHtml(t.name) + "</label>";
+            }).join("");
+        } catch (e) {
+            container.innerHTML = "<span style=\"color:#888;\">加载失败</span>";
+        }
+    }
+
+    function renderTagManagement(body) {
+        body.innerHTML = "<div style=\"padding:40px;text-align:center;color:#888;\">加载中...</div>";
+        loadTagTable(body);
+    }
+
+    async function loadTagTable(container) {
+        try {
+            var res = await apiFetch("/api/admin/tags");
+            var data = await res.json();
+            if (data.code !== 0) throw new Error(data.message || "失败");
+            var tags = data.data;
+            if (!container) container = document.querySelector(".main-body");
+            var rows = tags.map(function(t) {
+                var statusClass = t.is_active ? "badge-published" : "badge-draft";
+                var statusText = t.is_active ? "启用" : "禁用";
+                return "<tr>" +
+                    "<td>" + t.id + "</td>" +
+                    "<td>" + escHtml(t.name) + "</td>" +
+                    "<td>" + escHtml(t.slug) + "</td>" +
+                    "<td>" + t.game_count + "</td>" +
+                    "<td>" + t.sort_order + "</td>" +
+                    "<td><span class=\"badge " + statusClass + "\">" + statusText + "</span></td>" +
+                    "<td>" +
+                    "<button class=\"btn btn-sm\" onclick=\"editTag(" + t.id + ")\" title=\"编辑\">&#x270F;</button>" +
+                    "<button class=\"btn btn-sm btn-danger\" onclick=\"deleteTag(" + t.id + ")\" title=\"删除\">&#x2715;</button>" +
+                    "</td>" +
+                    "</tr>";
+            }).join("");
+            container.innerHTML =
+                "<div class=\"panel\">" +
+                "<div class=\"panel-header\"><h3>标签管理</h3><button class=\"btn btn-primary\" onclick=\"showTagForm()\">+ 新增标签</button></div>" +
+                "<div class=\"panel-body\" style=\"padding:0;\">" +
+                "<table class=\"data-table\">" +
+                "<thead><tr>" +
+                "<th>ID</th><th>标签名称</th><th>Slug</th><th>游戏数</th><th>排序</th><th>状态</th><th>操作</th>" +
+                "</tr></thead>" +
+                "<tbody>" + (rows || "<tr><td colspan=\"7\" style=\"text-align:center;color:#888;\">????</td></tr>") + "</tbody>" +
+                "</table></div></div>";
+        } catch (e) {
+            if (!container) container = document.querySelector(".main-body");
+            container.innerHTML = "<div class=\"empty-state\"><p>失败: " + escHtml(e.message) + "</p></div>";
+        }
+    }
+
+    function showTagForm(id) {
+        var isEdit = !!id;
+        var title = isEdit ? "编辑标签" : "新增标签";
+        var html = "<div class=\"modal\">" +
+            "<div class=\"modal-header\"><h3>" + title + "</h3><button class=\"modal-close-btn\" onclick=\"closeModal()\">&times;</button></div>" +
+            "<div class=\"modal-body\"><form id=\"tag-form\">" +
+            "<input type=\"hidden\" name=\"id\" value=\"" + (id || "") + "\">" +
+            "<div class=\"form-row\">" +
+            "<div class=\"form-group\"><label>标签名称 *</label><input name=\"name\" required placeholder=\"标签名称\"></div>" +
+            "<div class=\"form-group\"><label>Slug *</label><input name=\"slug\" required placeholder=\"tag-slug\"></div>" +
+            "</div>" +
+            "<div class=\"form-group\"><label>描述</label><textarea name=\"description\" rows=\"3\" placeholder=\"描述\"></textarea></div>" +
+            "<div class=\"form-row\">" +
+            "<div class=\"form-group\"><label>SEO标题</label><input name=\"seo_title\" maxlength=\"255\"></div>" +
+            "<div class=\"form-group\"><label>SEO关键词</label><input name=\"seo_keywords\" maxlength=\"500\"></div>" +
+            "</div>" +
+            "<div class=\"form-group\"><label>SEO描述</label><textarea name=\"seo_description\" rows=\"2\" maxlength=\"500\"></textarea></div>" +
+            "<div class=\"form-row\">" +
+            "<div class=\"form-group\"><label>排序</label><input name=\"sort_order\" type=\"number\" value=\"0\"></div>" +
+            "<div class=\"form-group\"><label>状态</label><select name=\"is_active\"><option value=\"1\">启用</option><option value=\"0\">禁用</option></select></div>" +
+            "</div>" +
+            "<div class=\"form-actions\">" +
+            "<button type=\"button\" class=\"btn\" onclick=\"closeModal()\">取消</button>" +
+            "<button type=\"submit\" class=\"btn btn-primary\">保存</button>" +
+            "</div>" +
+            "</form></div></div>";
+        showModal(html);
+        if (isEdit) {
+            loadTagData(id);
+        }
+        document.getElementById("tag-form").addEventListener("submit", function(e) {
+            e.preventDefault();
+            saveTag();
+        });
+    }
+
+    async function loadTagData(id) {
+        try {
+            var res = await apiFetch("/api/admin/tags/" + id);
+            var data = await res.json();
+            if (data.code !== 0) return;
+            var t = data.data;
+            var form = document.getElementById("tag-form");
+            form.querySelector("[name=name]").value = t.name || "";
+            form.querySelector("[name=slug]").value = t.slug || "";
+            form.querySelector("[name=description]").value = t.description || "";
+            form.querySelector("[name=seo_title]").value = t.seo_title || "";
+            form.querySelector("[name=seo_description]").value = t.seo_description || "";
+            form.querySelector("[name=seo_keywords]").value = t.seo_keywords || "";
+            form.querySelector("[name=sort_order]").value = t.sort_order || 0;
+            form.querySelector("[name=is_active]").value = t.is_active ? "1" : "0";
+        } catch (e) {}
+    }
+
+    async function saveTag() {
+        var form = document.getElementById("tag-form");
+        var fd = new FormData(form);
+        var id = fd.get("id");
+        var payload = {
+            name: fd.get("name"),
+            slug: fd.get("slug"),
+            description: fd.get("description") || "",
+            seo_title: fd.get("seo_title") || "",
+            seo_description: fd.get("seo_description") || "",
+            seo_keywords: fd.get("seo_keywords") || "",
+            sort_order: parseInt(fd.get("sort_order")) || 0,
+            is_active: fd.get("is_active") === "1",
+        };
+        try {
+            var url = id ? "/api/admin/tags/" + id : "/api/admin/tags";
+            var method = id ? "PUT" : "POST";
+            var res = await apiFetch(url, { method: method, body: payload });
+            var data = await res.json();
+            if (data.code === 0) {
+                alert(id ? "编辑成功" : "新增成功");
+                closeModal();
+                await loadTagTable();
+            } else {
+                alert("失败: " + (data.detail || data.message || "未知错误"));
+            }
+        } catch (e) {
+            alert("失败: " + e.message);
+        }
+    }
+
+    async function deleteTag(id) {
+        if (!confirm("确定删除该标签吗？")) return;
+        try {
+            var res = await apiFetch("/api/admin/tags/" + id, { method: "DELETE" });
+            var data = await res.json();
+            if (data.code === 0) {
+                alert("删除成功");
+                await loadTagTable();
+            } else {
+                alert("失败: " + (data.detail || data.message || "未知错误"));
+            }
+        } catch (e) {
+            alert("失败: " + e.message);
+        }
+    }
+
+    function editTag(id) {
+        showTagForm(id);
+    }
+
     function renderPlaceholder(body, menu) {
         if (!menu) return;
         body.innerHTML =

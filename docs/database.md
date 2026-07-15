@@ -254,12 +254,43 @@
 
 ---
 
+
+### 8. tags（标签表，模块7.7）
+
+| 字段 | 类型 | 约束 | 说明 |
+|------|------|------|------|
+| id | INTEGER | PK, AUTOINCREMENT | 主键 |
+| name | VARCHAR(100) | NOT NULL | 标签名称 |
+| slug | VARCHAR(100) | NOT NULL, UNIQUE | URL友好标识 |
+| description | TEXT | DEFAULT '' | 标签描述 |
+| seo_title | VARCHAR(255) | DEFAULT '' | 自定义SEO标题 |
+| seo_description | VARCHAR(500) | DEFAULT '' | 自定义SEO描述 |
+| seo_keywords | VARCHAR(500) | DEFAULT '' | 自定义SEO关键词 |
+| sort_order | INTEGER | DEFAULT 0 | 排序 |
+| is_active | BOOLEAN | DEFAULT 1 | 是否启用 |
+| created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 创建时间 |
+| updated_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 更新时间 |
+
+**索引**: slug, is_active
+
+### 9. game_tags（游戏-标签关联表，模块7.7）
+
+| 字段 | 类型 | 约束 | 说明 |
+|------|------|------|------|
+| id | INTEGER | PK, AUTOINCREMENT | 主键 |
+| game_id | INTEGER | FK → games.id (CASCADE) | 游戏ID |
+| tag_id | INTEGER | FK → tags.id (CASCADE) | 标签ID |
+
+**索引**: game_id, tag_id
+**关系**: 多对多
+
 ## 关系说明
 
 | 关系 | 方向 | 类型 |
 |------|------|------|
 | games → categories | 多对一 | category_id FK → categories.id |
 | games → download_resources | 一对多 | games.download_resources 反向关系 |
+| games → tags | 多对多 | 通过 game_tags 关联表 |
 | download_resources → download_providers | 多对一 | provider_id FK → download_providers.id |
 | download_tokens → download_resources | 多对一 | resource_id FK（CASCADE 删除） |
 | download_tokens → games | 多对一 | game_id FK（CASCADE 删除，冗余加速查询） |
@@ -269,4 +300,5 @@
 | 文件 | 说明 |
 |------|------|
 | `migrations/007_04_download_tokens.sql` | 下载 Token 表创建 |
+| `migrations/007_07_tags.sql` | 标签表和游戏标签关联表创建 |
 | `migrations/007_04_01_download_tokens_constraint.sql` | Token 唯一约束更新 |

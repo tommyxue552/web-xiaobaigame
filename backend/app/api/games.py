@@ -16,6 +16,8 @@ from ..models.game import Game
 from ..models.category import Category
 from ..models.download_resource import DownloadResource
 from ..models.download_provider import DownloadProvider
+from ..models.tag import Tag
+from ..models.game_tag import GameTag
 import qrcode
 
 router = APIRouter(tags=['Games'])
@@ -121,6 +123,7 @@ def _render_game_detail_html(game, meta, game_dict):
     og_img = '<meta property="og:image" content="' + html_esc(img) + '">' if img else ""
     tw_img = '<meta name="twitter:image" content="' + html_esc(img) + '">' if img else ""
 
+
     return """<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -210,6 +213,7 @@ def _render_game_detail_html(game, meta, game_dict):
         </div>
     </div>
 
+    
     <footer class="site-footer">
         <div class="container">
             <p>&copy; 2026 """ + SITE_NAME + """. All rights reserved.</p>
@@ -523,6 +527,22 @@ async def game_page(
     await db.commit()
 
     html = _render_game_detail_html(game, meta, game_dict)
+
+    # Inject related games section before </main>
+    related_games = await _get_related_games(db, game.id, game.category_id, limit=8)
+    if related_games:
+        rel_cards = ""
+        for rg in related_games:
+            rt = html_esc(rg["title"])
+            rs = html_esc(rg["slug"])
+            rc = html_esc(rg.get("cover", "") or "")
+            rcat = html_esc(rg.get("category", "") or "")
+            rsz = html_esc(rg.get("size", "") or "")
+            rc_html = f'<img src="{rc}" alt="{rt}" loading="lazy" onerror="this.style.display=\'none\'">' if rc else '<div class="game-card-placeholder"></div>'
+            rel_cards += f'<a href="/game/{rs}" class="game-card"><div class="game-card-cover">{rc_html}</div><div class="game-card-body"><h3 class="game-card-title">{rt}</h3><div class="game-card-meta"><span>{rcat}</span><span>{rsz}</span></div></div></a>'
+        rel_section = '<section class="detail-section related-games-section"><h2 class="detail-section-title">相关推荐</h2><div class="game-cards-grid">' + rel_cards + '</div></section>'
+        html = html.replace('</main>', rel_section + '\n</main>')
+
     return HTMLResponse(content=html)
 
 
@@ -539,20 +559,25 @@ async def sitemap(db: AsyncSession = Depends(get_db)):
     
     # 查询分类
     cat_result = await db.execute(select(Category).order_by(Category.id))
+    
+    # 查询标签
+    tag_result = await db.execute(select(Tag).where(Tag.is_active == True).order_by(Tag.sort_order.asc()))
+    tags = tag_result.scalars().all()
     categories = cat_result.scalars().all()
     
     # 计算总URL数：首页 + 游戏列表 + 分类页 + 各游戏详情
     base_url_count = 2  # 首页 + 游戏列表页
     cat_url_count = len(categories)
+    tag_url_count = len(tags) if tags else 0
     game_url_count = len(games)
-    total_urls = base_url_count + cat_url_count + game_url_count
+    total_urls = base_url_count + cat_url_count + tag_url_count + game_url_count
     
     # Sitemap 协议限制：单文件最多 50000 条 URL
     MAX_URLS_PER_SITEMAP = 50000
     
     if total_urls <= MAX_URLS_PER_SITEMAP:
         # 小站点：直接返回完整 sitemap
-        urls = _build_sitemap_urls(games, categories)
+        urls = _build_sitemap_urls(games, categories, tags)
         xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + '\n'.join(urls) + '\n</urlset>'
         return HTMLResponse(content=xml, media_type='application/xml')
     
@@ -583,9 +608,13 @@ async def sitemap_page(
     
     cat_result = await db.execute(select(Category).order_by(Category.id))
     categories = cat_result.scalars().all()
+
+    # ????
+    tag_result = await db.execute(select(Tag).where(Tag.is_active == True).order_by(Tag.sort_order.asc()))
+    tags = tag_result.scalars().all()
     
     # 构建完整的URL列表
-    all_urls = _build_sitemap_urls(games, categories)
+    all_urls = _build_sitemap_urls(games, categories, tags)
     total_urls = len(all_urls)
     total_pages = (total_urls + MAX_URLS_PER_SITEMAP - 1) // MAX_URLS_PER_SITEMAP
     
@@ -600,7 +629,252 @@ async def sitemap_page(
     return HTMLResponse(content=xml, media_type='application/xml')
 
 
-def _build_sitemap_urls(games, categories) -> list:
+# ==================== ????? (??7.7) ====================
+
+def _build_tag_meta(tag: Tag) -> dict:
+    """构建标签页 SEO 元数据"""
+    title = tag.seo_title or f"{tag.name} 游戏合集 - {SITE_NAME}"
+    desc = tag.seo_description or tag.description or f"浏览{tag.name}游戏推荐列表"
+    keywords = tag.seo_keywords or f"{tag.name},游戏,单机游戏,游戏下载"
+    return {
+        "title": title,
+        "description": desc[:300],
+        "keywords": keywords,
+    }
+
+
+def _render_tag_page_html(tag: Tag, games_data: list, meta: dict, page: int, total: int, page_size: int) -> str:
+    """渲染标签页 HTML (SSR + SEO)"""
+    t = html_esc(meta["title"])
+    d = html_esc(meta["description"])
+    kw = html_esc(meta["keywords"])
+    canon = _site_url() + "/tag/" + tag.slug
+    tag_name = html_esc(tag.name)
+    tag_desc = html_esc(tag.description or "")
+
+    # Build game cards HTML
+    cards = ""
+    for g in games_data:
+        g_title = html_esc(g.get("title", ""))
+        g_slug = html_esc(g.get("slug", ""))
+        g_cover = html_esc(g.get("cover", "") or "")
+        g_cat = html_esc(g.get("category", "") or "")
+        g_size = html_esc(g.get("size", "") or "")
+        cover_html = f'<img src="{g_cover}" alt="{g_title}" loading="lazy" onerror="this.style.display=\'none\'">' if g_cover else '<div class="game-card-placeholder"></div>'
+        cards += f"""<a href="/game/{g_slug}" class="game-card">
+    <div class="game-card-cover">{cover_html}</div>
+    <div class="game-card-body">
+        <h3 class="game-card-title">{g_title}</h3>
+        <div class="game-card-meta">
+            <span>{g_cat}</span>
+            <span>{g_size}</span>
+        </div>
+    </div>
+</a>"""
+
+    # Pagination
+    total_pages = (total + page_size - 1) // page_size if total > 0 else 1
+    pagination = ""
+    if total_pages > 1:
+        pagination += '<div class="pagination">'
+        if page > 1:
+            pagination += f'<a href="/tag/{tag.slug}?page={page-1}" class="page-btn">&laquo; 上一页</a>'
+        for p in range(max(1, page - 2), min(total_pages + 1, page + 3)):
+            active = ' active' if p == page else ''
+            pagination += f'<a href="/tag/{tag.slug}?page={p}" class="page-btn{active}">{p}</a>'
+        if page < total_pages:
+            pagination += f'<a href="/tag/{tag.slug}?page={page+1}" class="page-btn">下一页 &raquo;</a>'
+        pagination += '</div>'
+
+    jld = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": tag.name,
+        "description": meta["description"],
+        "url": canon,
+    }
+    jld_s = json.dumps(jld, ensure_ascii=False)
+
+    desc_section = f'<div class="tag-description">{tag_desc}</div>' if tag_desc else ""
+
+    return """<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>""" + t + """</title>
+    <meta name="description" content=\"""" + d + """">
+    <meta name="keywords" content=\"""" + kw + """">
+    <meta property="og:title" content=\"""" + t + """">
+    <meta property="og:description" content=\"""" + d + """">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content=\"""" + canon + """">
+    <meta property="og:site_name" content=\"""" + SITE_NAME + """">
+    <meta property="og:locale" content="zh_CN">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content=\"""" + t + """">
+    <meta name="twitter:description" content=\"""" + d + """">
+    <link rel="canonical" href="""" + canon + """">
+    <script type="application/ld+json">""" + jld_s + """</script>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="/" class="logo">小白<span>游戏</span></a>
+            <nav class="main-nav">
+                <a href="/">首页</a>
+                <a href="/frontend/games.html">全部游戏</a>
+                <a href="/admin/index.html">后台管理</a>
+            </nav>
+            <button class="mobile-menu-btn" aria-label="菜单">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
+
+    <nav class="breadcrumb">
+        <div class="container">
+            <a href="/">首页</a>
+            <span class="breadcrumb-sep">/</span>
+            <span class="breadcrumb-current">""" + tag_name + """</span>
+        </div>
+    </nav>
+
+    <main class="container tag-page-main">
+        <section class="tag-header">
+            <h1 class="tag-title">""" + tag_name + """</h1>
+            """ + desc_section + """
+            <p class="tag-count">共 <strong>""" + str(total) + """</strong> 款游戏</p>
+        </section>
+
+        <section class="game-cards-grid">
+            """ + cards + """
+        </section>
+
+        """ + pagination + """
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2026 """ + SITE_NAME + """. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>"""
+
+
+@router.get("/tag/{slug}", summary="标签详情页 (SEO)")
+async def tag_page(
+    slug: str,
+    request: Request,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=50),
+    db: AsyncSession = Depends(get_db),
+):
+    """标签详情页 - SSR + SEO"""
+    result = await db.execute(
+        select(Tag).where(Tag.slug == slug, Tag.is_active == True)
+    )
+    tag = result.scalar_one_or_none()
+    if not tag:
+        raise HTTPException(status_code=404, detail="标签不存在")
+
+    # Count games with this tag
+    count_query = select(func.count()).select_from(GameTag).where(GameTag.tag_id == tag.id)
+    total = (await db.execute(count_query)).scalar() or 0
+
+    # Get paginated game IDs for this tag
+    offset = (page - 1) * page_size
+    gt_result = await db.execute(
+        select(GameTag.game_id)
+        .where(GameTag.tag_id == tag.id)
+        .order_by(GameTag.id.desc())
+        .offset(offset)
+        .limit(page_size)
+    )
+    game_ids = [row[0] for row in gt_result.all()]
+
+    # Fetch games
+    games_data = []
+    if game_ids:
+        g_result = await db.execute(
+            select(Game)
+            .where(Game.id.in_(game_ids), Game.publish_status == "published")
+        )
+        games = {g.id: g for g in g_result.scalars().all()}
+        # Preserve order from game_tags
+        for gid in game_ids:
+            if gid in games:
+                g = games[gid]
+                games_data.append({
+                    "id": g.id, "title": g.title, "slug": g.slug,
+                    "cover": g.cover or "", "category": g.category or "",
+                    "size": g.size or "",
+                })
+
+    meta = _build_tag_meta(tag)
+    html = _render_tag_page_html(tag, games_data, meta, page, total, page_size)
+    return HTMLResponse(content=html)
+
+
+
+async def _get_related_games(db: AsyncSession, game_id: int, category_id: int, limit: int = 8) -> list:
+    """获取相关游戏推荐，优先同Tag，其次同Category"""
+    related_ids = set()
+
+    # 1. Same tags
+    tag_result = await db.execute(
+        select(GameTag.game_id)
+        .where(GameTag.game_id != game_id)
+        .where(
+            GameTag.tag_id.in_(
+                select(GameTag.tag_id).where(GameTag.game_id == game_id)
+            )
+        )
+        .limit(limit)
+    )
+    for row in tag_result.all():
+        related_ids.add(row[0])
+
+    # 2. Same category (fill remaining)
+    remaining = limit - len(related_ids)
+    if remaining > 0 and category_id:
+        cat_result = await db.execute(
+            select(Game.id)
+            .where(
+                Game.id != game_id,
+                Game.category_id == category_id,
+                Game.publish_status == "published",
+            )
+            .order_by(Game.views.desc())
+            .limit(remaining * 2)
+        )
+        for row in cat_result.all():
+            if row[0] not in related_ids:
+                related_ids.add(row[0])
+            if len(related_ids) >= limit:
+                break
+
+    if not related_ids:
+        return []
+
+    # Fetch game data
+    g_result = await db.execute(
+        select(Game).where(Game.id.in_(list(related_ids)), Game.publish_status == "published")
+    )
+    games = []
+    for g in g_result.scalars().all():
+        games.append({
+            "id": g.id, "title": g.title, "slug": g.slug,
+            "cover": g.cover or "", "category": g.category or "",
+            "size": g.size or "",
+        })
+    return games[:limit]
+
+
+
+def _build_sitemap_urls(games, categories, tags=None) -> list:
     """构建 sitemap URL 列表（包含首页、分类、游戏详情）"""
     urls = []
     base = _site_url()
@@ -617,6 +891,13 @@ def _build_sitemap_urls(games, categories) -> list:
             '  <url>\n    <loc>' + base + '/frontend/games.html?category=' + (cat.slug or '') + '</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>'
         )
     
+    # 标签页
+    if tags:
+        for tag in tags:
+            urls.append(
+                '  <url>\n    <loc>' + base + '/tag/' + (tag.slug or '') + '</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.6</priority>\n  </url>'
+            )
+
     # 游戏详情页
     for g in games:
         loc = base + '/game/' + (g.slug or str(g.id))
