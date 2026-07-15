@@ -1,4 +1,4 @@
--- ============================================================
+﻿-- ============================================================
 -- 灏忕櫧娓告垙璧勬簮绔?- 鏁版嵁搴撳垵濮嬪寲鑴氭湰
 -- ============================================================
 -- 鏁版嵁搴擄細SQLite锛堝彲杩佺Щ鑷?MySQL/PostgreSQL锛?
@@ -189,4 +189,7 @@ CREATE TABLE IF NOT EXISTS download_logs (
 CREATE INDEX IF NOT EXISTS idx_dl_token    ON download_logs(token);
 CREATE INDEX IF NOT EXISTS idx_dl_created  ON download_logs(created_at);
 CREATE INDEX IF NOT EXISTS idx_dl_action   ON download_logs(action);
+CREATE INDEX IF NOT EXISTS idx_dl_game_id      ON download_logs(game_id);
+CREATE INDEX IF NOT EXISTS idx_dl_provider_id  ON download_logs(provider_id);
+CREATE INDEX IF NOT EXISTS idx_dl_created_action ON download_logs(created_at, action);
 

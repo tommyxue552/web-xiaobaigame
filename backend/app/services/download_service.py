@@ -3,6 +3,7 @@
 -----------------
 提供 Token 生成、获取、日志记录等核心业务逻辑。
 Controller 层通过此 Service 访问数据。
+模块7.6 增强：日志记录新增 provider_id 和 referer 字段。
 """
 import secrets
 from typing import Optional, Tuple
@@ -97,7 +98,7 @@ async def resolve_resource_for_download(
     
     Returns:
         dict 包含 game_title, provider_name, provider_code,
-             share_url, extract_code, resource_title
+             provider_id, share_url, extract_code, resource_title
     """
     result = await db.execute(
         select(DownloadResource).where(
@@ -116,8 +117,11 @@ async def resolve_resource_for_download(
 
     provider_name = ""
     provider_code = token.provider_code or resource.provider
+    provider_id = resource.provider_id  # 模块7.6: 用于统计
     if resource.provider_rel:
         provider_name = resource.provider_rel.name
+        if not provider_id:
+            provider_id = resource.provider_rel.id
     else:
         # 尝试从 provider 表查找
         result = await db.execute(
@@ -126,7 +130,9 @@ async def resolve_resource_for_download(
             )
         )
         p = result.scalar_one_or_none()
-        provider_name = p.name if p else resource.provider
+        if p:
+            provider_name = p.name
+            provider_id = p.id
 
     if not resource.my_share_url:
         return None
@@ -136,6 +142,7 @@ async def resolve_resource_for_download(
         "game_id": token.game_id,
         "provider_name": provider_name,
         "provider_code": provider_code,
+        "provider_id": provider_id,
         "share_url": resource.my_share_url,
         "extract_code": resource.extract_code or "",
         "resource_title": resource.title or "",
@@ -151,15 +158,22 @@ async def log_download_action(
     user_agent: str,
     device_type: str,
     action: str,
+    provider_id: Optional[int] = None,
+    referer: str = "",
 ):
-    """记录下载行为日志（预留，不阻塞主流程）。"""
+    """记录下载行为日志（模块7.6增强：新增 provider_id 和 referer）。
+    
+    日志记录失败不会阻塞主流程。
+    """
     try:
         log_entry = DownloadLog(
             token=token_str,
             resource_id=resource_id,
             game_id=game_id,
+            provider_id=provider_id,
             ip_address=ip_address or "",
             user_agent=user_agent or "",
+            referer=referer or "",
             device_type=device_type,
             action=action,
         )

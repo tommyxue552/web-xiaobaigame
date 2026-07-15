@@ -222,6 +222,9 @@ PC 端二维码下载页（旧版兼容）。
 
 ---
 
+
+---
+
 ## 二、下载控制器接口（模块7.4）
 
 ### GET /download/{resource_id}
@@ -265,7 +268,124 @@ Token 短链接（二维码编码目标）。
 
 ---
 
-## 三、管理接口
+## 三、下载统计接口（模块7.6）
+
+> 所有统计接口需要 JWT 认证，Header: `Authorization: Bearer {token}`
+
+### GET /api/admin/download-stats/overview
+
+下载统计总览。
+
+**响应**：
+```json
+{
+    "code": 0,
+    "message": "success",
+    "data": {
+        "today": 150,
+        "today_view": 120,
+        "today_redirect": 30,
+        "yesterday": 135,
+        "total": 12500
+    }
+}
+```
+
+| 字段 | 说明 |
+|------|------|
+| today | 今日下载总次数（view + redirect） |
+| today_view | 今日查看下载页次数 |
+| today_redirect | 今日跳转网盘次数 |
+| yesterday | 昨日下载总次数 |
+| total | 历史累计总次数 |
+
+---
+
+### GET /api/admin/download-stats/top-games
+
+热门游戏下载排行。
+
+| 参数 | 类型 | 必填 | 默认 | 说明 |
+|------|------|------|------|------|
+| limit | int | 否 | 10 | 返回数量（1-100） |
+
+**响应**：
+```json
+{
+    "code": 0,
+    "message": "success",
+    "data": {
+        "ranking": [
+            {"game_id": 1, "game_title": "GTA V", "download_count": 520},
+            {"game_id": 2, "game_title": "巫师3", "download_count": 480}
+        ],
+        "total_items": 2
+    }
+}
+```
+
+---
+
+### GET /api/admin/download-stats/providers
+
+网盘渠道下载统计。
+
+**响应**：
+```json
+{
+    "code": 0,
+    "message": "success",
+    "data": {
+        "providers": [
+            {
+                "provider_id": 1,
+                "provider_name": "百度网盘",
+                "provider_code": "baidu",
+                "total_count": 300,
+                "view_count": 250,
+                "redirect_count": 50
+            }
+        ]
+    }
+}
+```
+
+| 字段 | 说明 |
+|------|------|
+| total_count | 总下载行为次数 |
+| view_count | 查看下载页次数 |
+| redirect_count | 跳转网盘次数 |
+
+---
+
+### GET /api/admin/download-stats/trend
+
+下载量时间趋势。
+
+| 参数 | 类型 | 必填 | 默认 | 说明 |
+|------|------|------|------|------|
+| days | int | 否 | 7 | 统计天数（1-90） |
+
+**响应**：
+```json
+{
+    "code": 0,
+    "message": "success",
+    "data": {
+        "trend": [
+            {"date": "2026-07-06", "count": 45},
+            {"date": "2026-07-07", "count": 52}
+        ],
+        "days": 7
+    }
+}
+```
+
+无数据的日期 count 为 0。
+
+---
+
+## 四、管理接口
 
 > 所有管理接口需要 JWT 认证，Header: `Authorization: Bearer {token}`
 
@@ -471,7 +591,7 @@ Token 短链接（二维码编码目标）。
 
 ---
 
-## 四、采集接口
+## 五、采集接口
 
 ### POST /api/crawler/import
 
@@ -541,7 +661,7 @@ Token 短链接（二维码编码目标）。
 
 ---
 
-## 五、预留接口
+## 六、预留接口
 
 以下接口已注册路由，返回 `501 Not Implemented`。
 
@@ -555,7 +675,7 @@ AI 生成游戏内容（预留）。
 
 ---
 
-## 六、静态文件路由
+## 七、静态文件路由
 
 | URL | 说明 |
 |-----|------|

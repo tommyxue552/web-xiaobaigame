@@ -20,6 +20,7 @@ from .api.ai import router as ai_router
 from .api.download_resources import router as download_resources_router
 from .api.download_providers import router as download_providers_router
 from .api.download_controller import router as download_controller_router
+from .api.download_stats import router as download_stats_router
 
 
 @asynccontextmanager
@@ -60,6 +61,7 @@ app.include_router(ai_router)             # AI 助手接口（预留）
 app.include_router(download_resources_router)   # 下载资源管理接口
 app.include_router(download_providers_router)   # 下载渠道管理接口
 app.include_router(download_controller_router)  # 统一下载控制器（模块7.4）
+app.include_router(download_stats_router)      # 下载统计（模块7.6）
 
 # ==================== 静态文件服务 ====================
 # 前台页面
