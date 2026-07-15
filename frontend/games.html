@@ -1,63 +1,63 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang='zh-CN'>
 <head>
     <meta charset='UTF-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <title>游戏列表 - 小白游戏资源�?/title>
-    <meta name='description' content='浏览全部游戏资源'>
+    <title>娓告垙鍒楄〃 - 灏忕櫧娓告垙璧勬簮绔?/title>
+    <meta name='description' content='娴忚鍏ㄩ儴娓告垙璧勬簮'>
     <link rel='stylesheet' href='/frontend/css/style.css'>
 </head>
 <body>
 
-    <!-- ==================== 顶部导航 ==================== -->
+    <!-- ==================== 椤堕儴瀵艰埅 ==================== -->
     <header class='site-header'>
         <div class='header-inner'>
-            <a href='/' class='logo'>小白<span>游戏</span></a>
+            <a href='/' class='logo'>灏忕櫧<span>娓告垙</span></a>
             <nav class='main-nav'>
-                <a href='/'>首页</a>
-                <a href='/frontend/games.html' class='active'>游戏列表</a>
-                <a href='/admin/index.html'>后台管理</a>
+                <a href='/'>棣栭〉</a>
+                <a href='/frontend/games.html' class='active'>娓告垙鍒楄〃</a>
+                <a href='/admin'>鍚庡彴绠＄悊</a>
             </nav>
-            <button class='mobile-menu-btn' aria-label='菜单'>
+            <button class='mobile-menu-btn' aria-label='鑿滃崟'>
                 <span></span><span></span><span></span>
             </button>
         </div>
     </header>
 
-    <!-- ==================== 页面标题 ==================== -->
+    <!-- ==================== 椤甸潰鏍囬 ==================== -->
     <section class='games-page-header'>
         <div class='container'>
-            <h1>全部游戏</h1>
-            <p class='result-count' id='result-count'>加载�?..</p>
+            <h1>鍏ㄩ儴娓告垙</h1>
+            <p class='result-count' id='result-count'>鍔犺浇涓?..</p>
         </div>
     </section>
 
-    <!-- ==================== 筛选栏 ==================== -->
+    <!-- ==================== 绛涢€夋爮 ==================== -->
     <main class='container'>
         <div class='games-page-filters'>
             <select id='category-filter'>
-                <option value=''>全部分类</option>
+                <option value=''>鍏ㄩ儴鍒嗙被</option>
             </select>
-            <input type='text' id='keyword-input' placeholder='搜索游戏名称...' autocomplete='off'>
+            <input type='text' id='keyword-input' placeholder='鎼滅储娓告垙鍚嶇О...' autocomplete='off'>
         </div>
 
-        <!-- ==================== 游戏列表 ==================== -->
+        <!-- ==================== 娓告垙鍒楄〃 ==================== -->
         <div class='game-grid' id='game-grid'>
-            <!-- JS 动态渲�?-->
+            <!-- JS 鍔ㄦ€佹覆鏌?-->
         </div>
 
-        <!-- ==================== 分页 ==================== -->
+        <!-- ==================== 鍒嗛〉 ==================== -->
         <div class='pagination' id='pagination'>
-            <!-- JS 动态渲�?-->
+            <!-- JS 鍔ㄦ€佹覆鏌?-->
         </div>
     </main>
 
-    <!-- ==================== 游戏详情弹窗 ==================== -->
+    <!-- ==================== 娓告垙璇︽儏寮圭獥 ==================== -->
     <div class='modal-overlay'>
         <div class='modal'>
             <div class='modal-cover-wrapper'>
                 <button class='modal-close'>&times;</button>
-                <img class='modal-cover' src='' alt='游戏封面'>
+                <img class='modal-cover' src='' alt='娓告垙灏侀潰'>
             </div>
             <div class='modal-body'>
                 <h2 class='modal-title'></h2>
@@ -69,10 +69,10 @@
         </div>
     </div>
 
-    <!-- ==================== 页脚 ==================== -->
+    <!-- ==================== 椤佃剼 ==================== -->
     <footer class='site-footer'>
         <div class='container'>
-            <p>&copy; 2026 小白游戏资源�? All rights reserved.</p>
+            <p>&copy; 2026 灏忕櫧娓告垙璧勬簮绔? All rights reserved.</p>
         </div>
     </footer>
 

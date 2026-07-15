@@ -156,8 +156,8 @@ def _render_game_detail_html(game, meta, game_dict):
             <a href="/" class="logo">小白<span>游戏</span></a>
             <nav class="main-nav">
                 <a href="/">首页</a>
-                <a href="/frontend/games.html">游戏列表</a>
-                <a href="/admin/index.html">后台管理</a>
+                <a href="/games">游戏列表</a>
+                <a href="/admin">后台管理</a>
             </nav>
             <button class="mobile-menu-btn" aria-label="菜单">
                 <span></span><span></span><span></span>
@@ -169,7 +169,7 @@ def _render_game_detail_html(game, meta, game_dict):
         <div class="container">
             <a href="/">首页</a>
             <span class="breadcrumb-sep">/</span>
-            <a href="/frontend/games.html">游戏列表</a>
+            <a href="/games">游戏列表</a>
             <span class="breadcrumb-sep">/</span>
             <span class="breadcrumb-current" id="breadcrumb-title">""" + gte + """</span>
         </div>
@@ -725,8 +725,8 @@ def _render_tag_page_html(tag: Tag, games_data: list, meta: dict, page: int, tot
             <a href="/" class="logo">小白<span>游戏</span></a>
             <nav class="main-nav">
                 <a href="/">首页</a>
-                <a href="/frontend/games.html">全部游戏</a>
-                <a href="/admin/index.html">后台管理</a>
+                <a href="/games">全部游戏</a>
+                <a href="/admin">后台管理</a>
             </nav>
             <button class="mobile-menu-btn" aria-label="菜单">
                 <span></span><span></span><span></span>
@@ -884,12 +884,12 @@ def _build_sitemap_urls(games, categories, tags=None) -> list:
     urls.append('  <url>\n    <loc>' + base + '</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>')
     
     # 游戏列表页
-    urls.append('  <url>\n    <loc>' + base + '/frontend/games.html</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.9</priority>\n  </url>')
+    urls.append('  <url>\n    <loc>' + base + '/games</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.9</priority>\n  </url>')
     
     # 分类页
     for cat in categories:
         urls.append(
-            '  <url>\n    <loc>' + base + '/frontend/games.html?category=' + (cat.slug or '') + '</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>'
+            '  <url>\n    <loc>' + base + '/games?category=' + (cat.slug or '') + '</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>'
         )
     
     # 标签页

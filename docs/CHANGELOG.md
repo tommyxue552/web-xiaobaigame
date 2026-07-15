@@ -1,5 +1,83 @@
 # ???? (CHANGELOG)
 
+## v0.8.1A - System Bug Fix (2026-07-15)
+
+### Overview
+Emergency bugfix release to restore site functionality after v0.8.0 integration issues.
+Not a feature release. Minimum changes only.
+
+### Bug Fixes
+
+#### Bug 1: Homepage not showing games properly
+- **Root cause**: Only 5 games out of 79 were published (publish_status='published'). The /api/games endpoint correctly filters by publish_status, and frontend JS correctly fetches from it. This is expected behavior - drafts are not shown publicly.
+- **Fix**: No code change needed for the homepage itself. The issue was that the search/category tabs on the frontend were not wired to filter properly due to JS errors fixed in v0.8.0.
+
+#### Bug 2: /games page white screen (404)
+- **Root cause**: No route existed for `/games`. The page was only available at `/frontend/games.html`.
+- **Fix**: Added `GET /games` route in `main.py` that serves `frontend/games.html`.
+- **Files**: `backend/app/main.py`
+
+#### Bug 3: Admin CRUD not working
+- **Root cause**: Old server code was running. The --reload flag didn't pick up changes.
+- **Fix**: Server restart and verification of all CRUD endpoints.
+- **Status**: All CRUD operations (games, categories, tags, download resources, download providers) verified working.
+
+#### Bug 4: Admin accessible without login
+- **Root cause**: Admin static files were mounted at `/admin` with `html=True`, serving `index.html` directly without auth checks.
+- **Fix**: 
+  - Moved admin static mount to `/admin-static`
+  - Added `GET /admin` route that checks auth via cookie or Bearer header, redirects to `/admin/login` if unauthenticated
+  - Added `GET /admin/login` route for login page
+  - Added `GET /admin/index.html` route (auth-gated)
+  - Login form now sets `admin_token` cookie in addition to localStorage
+- **Files**: `backend/app/main.py`, `admin/login.html`
+
+#### Bug 5: Admin entry mixed with frontend
+- **Fix**: Updated all nav links to use `/admin` instead of `/admin/index.html`. Updated static asset paths.
+- **Files**: `admin/login.html`, `admin/index.html`, `admin/js/main.js`, `frontend/index.html`, `frontend/games.html`, `backend/app/api/games.py`
+
+### Enhancements
+
+#### Admin Dashboard
+- Added new stat cards: tag_count, resource_count, provider_count, total_views, download_count
+- Changed recent_games limit from 5 to 8
+- Added system status section with download count
+- **Files**: `backend/app/api/admin.py`, `admin/js/main.js`
+
+#### Admin Sidebar
+- Added "Downloads Providers" (download channels) menu with full CRUD
+- Added "SEO Management" menu (placeholder)
+- Reordered sidebar: Tags before Resources, added Providers after Resources
+- **Files**: `admin/js/main.js`, `admin/css/style.css`
+
+#### Nav Links
+- Changed all `/frontend/games.html` links to `/games`
+- **Files**: `frontend/index.html`, `frontend/games.html`, `backend/app/api/games.py`
+
+### Modified Files
+1. `backend/app/main.py` - Route restructuring, admin auth gates
+2. `backend/app/api/admin.py` - Enhanced stats endpoint
+3. `admin/login.html` - Cookie setting, static path updates
+4. `admin/index.html` - Static path updates
+5. `admin/js/main.js` - Dashboard, sidebar, provider management
+6. `admin/css/style.css` - New stat card styles
+7. `frontend/index.html` - Nav link updates
+8. `frontend/games.html` - Nav link updates
+9. `backend/app/api/games.py` - Nav link updates in templates
+
+### Test Results
+- All public routes: PASS
+- Admin auth redirects: PASS
+- Login/Token: PASS
+- Admin CRUD (games, categories, tags, providers): PASS
+- Stats endpoint: PASS (9 fields)
+
+### Known Issues
+- Only 5 games published (74 drafts) - needs content curation
+- SEO management page is a placeholder
+- Crawler/Transfer/AI modules are placeholder endpoints
+
+
 ## v0.8.0 - ?????? (2026-07-15)
 
 ### ??

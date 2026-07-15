@@ -39,6 +39,9 @@ from ..models.tag import Tag
 from ..models.game_tag import GameTag
 
 from ..models.admin_user import AdminUser
+from ..models.download_resource import DownloadResource
+from ..models.download_provider import DownloadProvider
+from ..models.download_log import DownloadLog
 
 
 
@@ -539,40 +542,30 @@ async def admin_delete_category(cat_id: int, admin: AdminUser = Depends(get_curr
 
 
 
-@router.get("/stats", summary="[??] ?????")
-
+@router.get("/stats", summary="[Admin] Dashboard Stats")
 async def admin_stats(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
-
     total = (await db.execute(select(func.count()).select_from(Game))).scalar() or 0
-
     published = (await db.execute(select(func.count()).select_from(Game).where(Game.publish_status == "published"))).scalar() or 0
-
     draft = (await db.execute(select(func.count()).select_from(Game).where(Game.publish_status == "draft"))).scalar() or 0
-
     cat_count = (await db.execute(select(func.count()).select_from(Category))).scalar() or 0
-
-    recent_result = await db.execute(select(Game).order_by(Game.created_at.desc()).limit(5))
-
+    tag_count = (await db.execute(select(func.count()).select_from(Tag))).scalar() or 0
+    resource_count = (await db.execute(select(func.count()).select_from(DownloadResource))).scalar() or 0
+    provider_count = (await db.execute(select(func.count()).select_from(DownloadProvider))).scalar() or 0
+    download_count = (await db.execute(select(func.count()).select_from(DownloadLog))).scalar() or 0
+    total_views = (await db.execute(select(func.sum(Game.views)).select_from(Game))).scalar() or 0
+    recent_result = await db.execute(select(Game).order_by(Game.created_at.desc()).limit(8))
     recent_games = recent_result.scalars().all()
-
     return {
-
         "code": 0, "message": "success",
-
         "data": {
-
             "total_games": total, "published_games": published, "draft_games": draft,
-
-            "category_count": cat_count,
-
+            "category_count": cat_count, "tag_count": tag_count,
+            "resource_count": resource_count, "provider_count": provider_count,
+            "download_count": download_count, "total_views": total_views,
             "recent_games": [{"id": g.id, "title": g.title, "cover": g.cover, "category": g.category,
-
                                "publish_status": g.publish_status, "created_at": str(g.created_at)} for g in recent_games],
-
         },
-
     }
-
 
 
 

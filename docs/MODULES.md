@@ -1,8 +1,14 @@
 # 模块开发状态
 
-## 当前版本: v0.7.8
+## 当前版本: v0.8.1A
 
----
+------
+> **v0.8.1A System Bug Fix (2026-07-15)**
+> Emergency release to fix 5 critical bugs: homepage, /games 404, admin auth, admin CRUD, mixed entry points.
+> Added proper JWT auth gating on all /api/admin/* endpoints, cookie-based session for page auth.
+> Not a feature release - minimum changes only.
+
+
 
 ## 模块进度总览
 

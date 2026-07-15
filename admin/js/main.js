@@ -25,30 +25,32 @@
             options.body = JSON.stringify(options.body);
         }
         var res = await fetch(url, options);
-        if (res.status === 401) { clearAuth(); window.location.href = "/admin/login.html"; throw new Error("��֤�ѹ���"); }
+        if (res.status === 401) { clearAuth(); window.location.href = "/admin/login"; throw new Error("��֤�ѹ���"); }
         return res;
     }
 
     async function checkAuth() {
         var token = getToken();
-        if (!token) { window.location.href = "/admin/login.html"; return false; }
+        if (!token) { window.location.href = "/admin/login"; return false; }
         try {
             var res = await apiFetch("/api/admin/me");
-            if (!res.ok) { clearAuth(); window.location.href = "/admin/login.html"; return false; }
+            if (!res.ok) { clearAuth(); window.location.href = "/admin/login"; return false; }
             return true;
-        } catch (e) { clearAuth(); window.location.href = "/admin/login.html"; return false; }
+        } catch (e) { clearAuth(); window.location.href = "/admin/login"; return false; }
     }
 
-    function handleLogout() { clearAuth(); window.location.href = "/admin/login.html"; }
+    function handleLogout() { clearAuth(); window.location.href = "/admin/login"; }
 
     // ==================== �������� ====================
     var MENUS = [
-        { id: "dashboard", label: "仪表盘", icon: "\u25A0" },
-        { id: "games", label: "游戏管理", icon: "\u25B6" },
-        { id: "categories", label: "分类管理", icon: "\u25CB" },
-        { id: "resources", label: "下载资源", icon: "\u2193" },
-        { id: "tags", label: "标签管理", icon: "\u2605" },
-        { id: "dlstats", label: "下载统计", icon: "\u21C5" },
+        { id: "dashboard", label: "仪表盘", icon: "■" },
+        { id: "games", label: "游戏管理", icon: "▶" },
+        { id: "categories", label: "分类管理", icon: "○" },
+        { id: "tags", label: "标签管理", icon: "★" },
+        { id: "resources", label: "下载资源", icon: "↓" },
+        { id: "providers", label: "下载渠道", icon: "⚓" },
+        { id: "dlstats", label: "下载统计", icon: "⇅" },
+        { id: "seo", label: "SEO管理", icon: "☆" },
         { id: "crawler", label: "采集管理", icon: "\u21C4", hidden: true },
         { id: "transfer", label: "资源中转", icon: "\u21C5", hidden: true },
         { id: "ai", label: "AI助手", icon: "\u2699", hidden: true },
@@ -109,6 +111,8 @@
         case "games": renderGameManagement(body); break;
         case "categories": renderCategoryManagement(body); break;
         case "resources": renderResourceManagement(body); break;
+        case "providers": renderProviderManagement(body); break;
+        case "seo": renderPlaceholder(body, {label: "SEO管理", id: "seo"}); break;
     case "dlstats": renderDownloadStats(body); break;`n        case "tags": renderTagManagement(body); break;`n        case "settings": renderSettings(body); break;
         default: renderPlaceholder(body, MENUS.find(function(m){return m.id===menuId;})); break;
         }
@@ -124,17 +128,21 @@
             var stats = data.data;
             var publishRate = stats.total_games > 0 ? Math.round(stats.published_games / stats.total_games * 100) : 0;
             body.innerHTML =
-                ""<div class=\"stats-grid\">" +
-                "<div class=\"stat-card stat-total\"><div class=\"stat-icon\">&#x1F3AE;</div><div class=\"stat-info\"><div class=\"stat-label\">��Ϸ����</div><div class=\"stat-value\">" + stats.total_games + "</div><div class=\"stat-sub\">ȫ����Ϸ��Դ</div></div></div>" +
-                "<div class=\"stat-card stat-published\"><div class=\"stat-icon\">&#x2705;</div><div class=\"stat-info\"><div class=\"stat-label\">�ѷ���</div><div class=\"stat-value\">" + stats.published_games + "</div><div class=\"stat-sub\">������ " + publishRate + "%</div></div></div>" +
-                "<div class=\"stat-card stat-draft\"><div class=\"stat-icon\">&#x1F4DD;</div><div class=\"stat-info\"><div class=\"stat-label\">�ݸ�</div><div class=\"stat-value\">" + stats.draft_games + "</div><div class=\"stat-sub\">���༭����</div></div></div>" +
-                "<div class=\"stat-card stat-category\"><div class=\"stat-icon\">&#x1F4C2;</div><div class=\"stat-info\"><div class=\"stat-label\">��������</div><div class=\"stat-value\">" + stats.category_count + "</div><div class=\"stat-sub\">��Ϸ����</div></div></div>" +
+                "<div class=\"stats-grid\">" +
+                "<div class=\"stat-card stat-total\"><div class=\"stat-icon\">&#x1F3AE;</div><div class=\"stat-info\"><div class=\"stat-label\">\u6e38\u620f\u603b\u6570</div><div class=\"stat-value\">" + stats.total_games + "</div><div class=\"stat-sub\">\u5168\u90e8\u6e38\u620f\u8d44\u6e90</div></div></div>" +
+                "<div class=\"stat-card stat-published\"><div class=\"stat-icon\">&#x2705;</div><div class=\"stat-info\"><div class=\"stat-label\">\u5df2\u53d1\u5e03</div><div class=\"stat-value\">" + stats.published_games + "</div><div class=\"stat-sub\">\u5360\u6bd4 " + publishRate + "%</div></div></div>" +
+                "<div class=\"stat-card stat-draft\"><div class=\"stat-icon\">&#x1F4DD;</div><div class=\"stat-info\"><div class=\"stat-label\">\u8349\u7a3f</div><div class=\"stat-value\">" + stats.draft_games + "</div><div class=\"stat-sub\">\u5f85\u7f16\u8f91\u53d1\u5e03</div></div></div>" +
+                "<div class=\"stat-card stat-category\"><div class=\"stat-icon\">&#x1F4C2;</div><div class=\"stat-info\"><div class=\"stat-label\">\u6e38\u620f\u5206\u7c7b</div><div class=\"stat-value\">" + stats.category_count + "</div><div class=\"stat-sub\">\u6e38\u620f\u5206\u7c7b</div></div></div>" +
+                "<div class=\"stat-card stat-tag\"><div class=\"stat-icon\">&#x1F3F7;</div><div class=\"stat-info\"><div class=\"stat-label\">\u6807\u7b7e\u603b\u6570</div><div class=\"stat-value\">" + (stats.tag_count || 0) + "</div><div class=\"stat-sub\">\u6e38\u620f\u6807\u7b7e</div></div></div>" +
+                "<div class=\"stat-card stat-download\"><div class=\"stat-icon\">&#x2B07;</div><div class=\"stat-info\"><div class=\"stat-label\">\u4e0b\u8f7d\u8d44\u6e90</div><div class=\"stat-value\">" + (stats.resource_count || 0) + "</div><div class=\"stat-sub\">\u8d44\u6e90\u603b\u6570</div></div></div>" +
+                "<div class=\"stat-card stat-provider\"><div class=\"stat-icon\">&#x1F310;</div><div class=\"stat-info\"><div class=\"stat-label\">\u4e0b\u8f7d\u6e20\u9053</div><div class=\"stat-value\">" + (stats.provider_count || 0) + "</div><div class=\"stat-sub\">\u6e20\u9053\u603b\u6570</div></div></div>" +
+                "<div class=\"stat-card stat-views\"><div class=\"stat-icon\">&#x1F441;</div><div class=\"stat-info\"><div class=\"stat-label\">\u603b\u6d4f\u89c8\u91cf</div><div class=\"stat-value\">" + (stats.total_views || 0) + "</div><div class=\"stat-sub\">\u7d2f\u8ba1\u6d4f\u89c8</div></div></div>" +
                 "</div>" +
-                "class=\"panel\">" +
-                "<div class=\"panel-header\"><h3>�����ӵ���Ϸ</h3></div>" +
+                "<div class=\"panel\">" +
+                "<div class=\"panel-header\"><h3>\u6700\u8fd1\u6dfb\u52a0\u7684\u6e38\u620f</h3></div>" +
                 "<ul class=\"recent-list\">" +
                 (stats.recent_games.length === 0
-                    ? "<li style=\"justify-content:center;color:#888;\">������Ϸ����</li>"
+                    ? "<li style=\"justify-content:center;color:#888;\">\u6682\u65e0\u6e38\u620f\u6570\u636e</li>"
                     : stats.recent_games.map(function(g) {
                         return "<li>" +
                             "<img src=\"" + (g.cover || "/frontend/images/placeholder.svg") + "\" class=\"recent-cover\" onerror=\"this.src='/frontend/images/placeholder.svg'\">" +
@@ -147,14 +155,12 @@
                 "</ul>" +
                 "</div>" +
                 "<div class=\"panel\" style=\"margin-top:16px;\">" +
-                "<div class=\"panel-header\"><h3>ϵͳ״̬</h3></div>" +
+                "<div class=\"panel-header\"><h3>\u7cfb\u7edf\u72b6\u6001</h3></div>" +
                 "<div class=\"panel-body\" style=\"padding:20px;\">" +
                 "<div style=\"display:flex;gap:20px;flex-wrap:wrap;\">" +
-                "<div><span style=\"color:#888;font-size:0.85rem;\">API �汾</span><br><span style=\"font-weight:600;\">v1.0.0</span></div>" +
-                "<div><span style=\"color:#888;font-size:0.85rem;\">���ݿ�</span><br><span style=\"font-weight:600;\">SQLite<</span></div>" +
-                "<div><span style=\"color:#888;font-size:0.85rem;\">�ɼ�����<</span><br><span style=\"font-weight:600;color:#f57f17;\">������</span></div>" +
-                "<div><span style=\"color:#888;font-size:0.85rem;\">��Դ��ת<</span><br><span style=\"font-weight:600;color:#f57f17;\">������</span></div>" +
-                "<div><span style=\"color:#888;font-size:0.85rem;\">AI ����<</span><br><span style=\"font-weight:600;color:#f57f17;\">������</span></div>" +
+                "<div><span style=\"color:#888;font-size:0.85rem;\">\u4e0b\u8f7d\u6b21\u6570</span><br><span style=\"font-weight:600;\">" + (stats.download_count || 0) + "</span></div>" +
+                "<div><span style=\"color:#888;font-size:0.85rem;\">API \u7248\u672c</span><br><span style=\"font-weight:600;\">v0.8.1A</span></div>" +
+                "<div><span style=\"color:#888;font-size:0.85rem;\">\u6570\u636e\u5e93</span><br><span style=\"font-weight:600;\">SQLite</span></div>" +
                 "</div></div></div>";
         } catch (e) {
             body.innerHTML = "<div class=\"empty-state\"><p>����ͳ��ʧ��: " + escHtml(e.message) + "</p></div>";
@@ -364,7 +370,8 @@
         form.querySelector("[name=developer]").value = game.developer;
         form.querySelector("[name=release_date]").value = game.release_date || "";
         form.querySelector("[name=publish_status]").value = game.publish_status;
-        loadTagCheckboxes(game.tag_ids || []);        form.querySelector("[name=download_url]").value = game.download_url;
+        loadTagCheckboxes(game.tag_ids || []);
+        form.querySelector("[name=download_url]").value = game.download_url;
         form.querySelector("[name=original_url]").value = game.original_url;
         form.querySelector("[name=transfer_status]").value = game.transfer_status || "pending";
         form.querySelector("[name=crawler_source]").value = game.crawler_source || "";
@@ -832,7 +839,149 @@ function closeResourceModal() {
             if (data.code === 0) { await loadDownloadResources(); }
             else { alert("ɾ��ʧ��: " + (data.detail || data.message)); }
         } catch (e) { alert("ɾ��ʧ��: " + e.message); }
-    }function renderSettings(body) {
+    }
+    function renderProviderManagement(body) {
+        body.innerHTML = "<div style="padding:40px;text-align:center;color:#888;">加载中...</div>";
+        loadProviderTable(body);
+    }
+
+    async function loadProviderTable(container) {
+        try {
+            var res = await apiFetch("/api/admin/download-providers");
+            var data = await res.json();
+            if (data.code !== 0) throw new Error(data.message || "失败");
+            var providers = data.data.items || data.data;
+            if (!container) container = document.querySelector(".main-body");
+            var rows = providers.map(function(p) {
+                var statusClass = p.is_active ? "badge-published" : "badge-draft";
+                var statusText = p.is_active ? "启用" : "禁用";
+                return "<tr>" +
+                    "<td>" + p.id + "</td>" +
+                    "<td>" + escHtml(p.name) + "</td>" +
+                    "<td>" + escHtml(p.code) + "</td>" +
+                    "<td>" + escHtml(p.base_url || "-") + "</td>" +
+                    "<td><span class="badge " + statusClass + "">" + statusText + "</span></td>" +
+                    "<td>" +
+                    "<button class="btn btn-sm" onclick="editProvider(" + p.id + ")" title="编辑">&#x270F;</button>" +
+                    "<button class="btn btn-sm btn-danger" onclick="deleteProvider(" + p.id + ")" title="删除">&#x2715;</button>" +
+                    "</td>" +
+                    "</tr>";
+            }).join("");
+            container.innerHTML =
+                "<div class="panel">" +
+                "<div class="panel-header"><h3>下载渠道管理</h3><button class="btn btn-primary" onclick="showProviderForm()">+ 新增渠道</button></div>" +
+                "<div class="panel-body" style="padding:0;">" +
+                "<table class="data-table">" +
+                "<thead><tr>" +
+                "<th>ID</th><th>渠道名称</th><th>代码</th><th>基址URL</th><th>状态</th><th>操作</th>" +
+                "</tr></thead>" +
+                "<tbody>" + (rows || "<tr><td colspan="6" style="text-align:center;color:#888;">暂无数据</td></tr>") + "</tbody>" +
+                "</table></div></div>";
+        } catch (e) {
+            if (!container) container = document.querySelector(".main-body");
+            container.innerHTML = "<div class="empty-state"><p>加载失败: " + escHtml(e.message) + "</p></div>";
+        }
+    }
+
+    function showProviderForm(id) {
+        var isEdit = !!id;
+        var title = isEdit ? "编辑渠道" : "新增渠道";
+        var html = "<div class="modal">" +
+            "<div class="modal-header"><h3>" + title + "</h3><button class="modal-close-btn" onclick="closeModal()">&times;</button></div>" +
+            "<div class="modal-body"><form id="provider-form">" +
+            "<input type="hidden" name="id" value="" + (id || "") + "">" +
+            "<div class="form-row">" +
+            "<div class="form-group"><label>名称 *</label><input name="name" required placeholder="渠道名称"></div>" +
+            "<div class="form-group"><label>代码 *</label><input name="code" required placeholder="provider-code"></div>" +
+            "</div>" +
+            "<div class="form-group"><label>基址URL</label><input name="base_url" placeholder="https://..."></div>" +
+            "<div class="form-group"><label>描述</label><textarea name="description" rows="3" placeholder="描述"></textarea></div>" +
+            "<div class="form-row">" +
+            "<div class="form-group"><label>排序</label><input name="sort_order" type="number" value="0"></div>" +
+            "<div class="form-group"><label>状态</label><select name="is_active"><option value="1">启用</option><option value="0">禁用</option></select></div>" +
+            "</div>" +
+            "<div class="form-actions">" +
+            "<button type="button" class="btn" onclick="closeModal()">取消</button>" +
+            "<button type="submit" class="btn btn-primary">保存</button>" +
+            "</div>" +
+            "</form></div></div>";
+        showModal(html);
+        if (isEdit) {
+            loadProviderData(id);
+        }
+        document.getElementById("provider-form").addEventListener("submit", function(e) {
+            e.preventDefault();
+            saveProvider();
+        });
+    }
+
+    async function loadProviderData(id) {
+        try {
+            var res = await apiFetch("/api/admin/download-providers/" + id);
+            var data = await res.json();
+            if (data.code !== 0) return;
+            var p = data.data;
+            var form = document.getElementById("provider-form");
+            form.querySelector("[name=name]").value = p.name || "";
+            form.querySelector("[name=code]").value = p.code || "";
+            form.querySelector("[name=base_url]").value = p.base_url || "";
+            form.querySelector("[name=description]").value = p.description || "";
+            form.querySelector("[name=sort_order]").value = p.sort_order || 0;
+            form.querySelector("[name=is_active]").value = p.is_active ? "1" : "0";
+        } catch (e) {}
+    }
+
+    async function saveProvider() {
+        var form = document.getElementById("provider-form");
+        var fd = new FormData(form);
+        var id = fd.get("id");
+        var payload = {
+            name: fd.get("name"),
+            code: fd.get("code"),
+            base_url: fd.get("base_url") || "",
+            description: fd.get("description") || "",
+            sort_order: parseInt(fd.get("sort_order")) || 0,
+            is_active: fd.get("is_active") === "1",
+        };
+        try {
+            var url = id ? "/api/admin/download-providers/" + id : "/api/admin/download-providers";
+            var method = id ? "PUT" : "POST";
+            var res = await apiFetch(url, { method: method, body: payload });
+            var data = await res.json();
+            if (data.code === 0) {
+                alert(id ? "编辑成功" : "新增成功");
+                closeModal();
+                await loadProviderTable();
+            } else {
+                alert("失败: " + (data.detail || data.message || "未知错误"));
+            }
+        } catch (e) {
+            alert("失败: " + e.message);
+        }
+    }
+
+    async function deleteProvider(id) {
+        if (!confirm("确定删除该下载渠道吗？")) return;
+        try {
+            var res = await apiFetch("/api/admin/download-providers/" + id, { method: "DELETE" });
+            var data = await res.json();
+            if (data.code === 0) {
+                alert("删除成功");
+                await loadProviderTable();
+            } else {
+                alert("失败: " + (data.detail || data.message || "未知错误"));
+            }
+        } catch (e) {
+            alert("失败: " + e.message);
+        }
+    }
+
+    function editProvider(id) {
+        showProviderForm(id);
+    }
+
+
+function renderSettings(body) {
         body.innerHTML =
             "<div class=\"panel\"><div class=\"panel-header\"><h3>ϵͳ����</h3></div><div class=\"panel-body\" style=\"padding:20px;\">" +
             "<div class=\"form-group\"><label>վ������</label><input value=\"С����Ϸ��Դվ\" disabled></div>" +
@@ -1025,6 +1174,29 @@ function closeResourceModal() {
     }
 
     // ==================== ��� ====================
+    
+    function showModal(html) {
+        var overlay = document.querySelector(".modal-overlay");
+        if (!overlay) {
+            overlay = document.createElement("div");
+            overlay.className = "modal-overlay";
+            document.body.appendChild(overlay);
+        }
+        overlay.innerHTML = html;
+        overlay.style.display = "flex";
+        overlay.addEventListener("click", function(e) {
+            if (e.target === overlay) closeModal();
+        });
+    }
+
+    function closeModal() {
+        var overlay = document.querySelector(".modal-overlay");
+        if (overlay) {
+            overlay.style.display = "none";
+            overlay.innerHTML = "";
+        }
+    }
+
     async function init() {
         var authed = await checkAuth();
         if (!authed) return;
